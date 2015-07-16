@@ -30,5 +30,5 @@ How to start?
 3. Get data <br/>
 `var cars = Dc.Get<Car>().Where(c => c.Name == "Honda");`
 
-4. Get all objects of certain type directly from file <br/>
+4. Get all objects of the certain type directly from file <br/>
 `var data = DataContext.Read<Car>();`
