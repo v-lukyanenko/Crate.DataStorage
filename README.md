@@ -6,12 +6,11 @@ How to start:
 <br/><br/>
 2.  If you don't have any data yet add some <br/><br/>
             ```
-            var car = new Car<br/>
-            {<br/>
-                Name = "Honda",<br/>
-                Model = "Accord",<br/>
-                Prise = 33000<br/>
-            };<br/>
+            var car = new Car { 
+                        Name = "Honda", 
+                        Model = "Accord", 
+                        Prise = 33000 
+            };
             Dc.Add(car);
             Dc.SubmitChanges();
             ```
