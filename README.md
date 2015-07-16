@@ -2,7 +2,9 @@
 How to start:
 
 1. Create a new instance of the DataContext <br/><br/>
-            `private readonly IDataContext Dc = new DataContext(@"C:\Temp\Crate\");`
+            ```csharp
+            private readonly IDataContext Dc = new DataContext(@"C:\Temp\Crate\");
+            ```
 <br/><br/>
 2.  If you don't have any data yet add some <br/><br/>
             `var car = new Car` <br/>
@@ -40,5 +42,5 @@ How to start:
                            `c.Prise` <br/>
                         `};` <br/>
 <br/><br/>
-6. You can also get all objects from certain file to the separate list <br/><br/>
+6. You can also get all objects from certain type to the separate list <br/><br/>
             `var allCars = DataContext.Read<Car>();`
