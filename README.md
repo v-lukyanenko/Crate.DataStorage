@@ -2,9 +2,11 @@
 How to start:
 
 1. Create a new instance of the DataContext
+            ```python
             private readonly IDataContext Dc = new DataContext(@"C:\Temp\Crate\");
+            ```
 
-2.  If you don't have any data yet add some
+2.  If you don't have any data yet add some <br/>
             var car = new Car
             {
                 Name = "Honda",
