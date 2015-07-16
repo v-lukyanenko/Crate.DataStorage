@@ -1,18 +1,16 @@
 # Crate.DataStorage
 How to start:
 
-1. Create a new instance of the DataContext
-            ```python
-            private readonly IDataContext Dc = new DataContext(@"C:\Temp\Crate\");
-            ```
+1. Create a new instance of the DataContext <br/>
+            `private readonly IDataContext Dc = new DataContext(@"C:\Temp\Crate\");`
 
 2.  If you don't have any data yet add some <br/>
-            var car = new Car
-            {
-                Name = "Honda",
-                Model = "Accord",
-                Prise = 33000
-            };
+            var car = new Car <br/>
+            {<br/>
+                Name = "Honda",<br/>
+                Model = "Accord",<br/>
+                Prise = 33000<br/>
+            };<br/>
             
             Dc.Add(car);
             Dc.SubmitChanges();
