@@ -2,19 +2,19 @@
 How to start:
 
 1. Create a new instance of the DataContext <br/><br/>
-            ```csharp
-            private readonly IDataContext Dc = new DataContext(@"C:\Temp\Crate\");
-            ```
+            `private readonly IDataContext Dc = new DataContext(@"C:\Temp\Crate\");`
 <br/><br/>
 2.  If you don't have any data yet add some <br/><br/>
-            `var car = new Car` <br/>
-            `{`<br/>
-                `Name = "Honda",`<br/>
-                `Model = "Accord",`<br/>
-                `Prise = 33000`<br/>
-            `};`<br/>
-            `Dc.Add(car);`
-            `Dc.SubmitChanges();`
+            ```
+            var car = new Car<br/>
+            {<br/>
+                Name = "Honda",<br/>
+                Model = "Accord",<br/>
+                Prise = 33000<br/>
+            };<br/>
+            Dc.Add(car);
+            Dc.SubmitChanges();
+            ```
 <br/><br/>
 3. Now you can find your car by name for example <br/><br/>
             `var cars = Dc.Get<Car>().Where(c => c.Name == "Honda");`
