@@ -11,22 +11,19 @@ How to start:
                         Model = "Accord", 
                         Prise = 33000 
             };
-            Dc.Add(car);
-            Dc.SubmitChanges();
             ```
+            <br/>
+            `Dc.Add(car);`
+            <br/>
+            `Dc.SubmitChanges();`
+            
 <br/><br/>
 3. Now you can find your car by name for example <br/><br/>
             `var cars = Dc.Get<Car>().Where(c => c.Name == "Honda");`
 <br/><br/>
 4. Let's add a new object  <br/><br/>
-            `var person = new Person` <br/>
-            `{` <br/>
-                `Name = "John Doe",` <br/>
-                `Age = 24,` <br/>
-                `Email = "john.doe@email.com",` <br/>
-                `Phone = "4325837421",` <br/>
-                `CarId = 1` <br/>
-            `};` <br/>
+            `var person = new Person { Name = "John Doe", Age = 24, Email = "john.doe@email.com", Phone = "4325837421",`
+                `CarId = 1};`
 <br/><br/>
 5. Get all cars and ther drivers <br/><br/>
             `var query = from c in Dc.Get<Car>()` <br/>
