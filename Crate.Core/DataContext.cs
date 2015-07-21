@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
 
@@ -59,6 +60,9 @@ namespace Crate.Core
         private void SubmitChanges(IStorage storage, Instance data)
         {
             var fullPath = FullPath(storage.Name, data.Name);
+            var directory = Path.GetDirectoryName(fullPath);
+            
+            Directory.CreateDirectory(directory);
 
             switch (data.Type)
             {
@@ -108,7 +112,7 @@ namespace Crate.Core
 
         private string FullPath(string storage, string obj)
         {
-            return string.Format(@"{0}\{1}\{2}.{3}", _filePath, storage, obj, Constants.FileExtension);
+            return Path.Combine(_filePath, string.Format(@"{0}\{1}.{2}", storage, obj, Constants.FileExtension));
         }
 
         private readonly string _filePath;
