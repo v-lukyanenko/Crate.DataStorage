@@ -53,7 +53,7 @@ namespace Crate.Core
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="t">The t.</param>
-        public void Update<T>(T t) where T : new()
+        public void Update<T>(T t)
         {
             IsEnumerable(t);
             AddInstance(t, OperationType.Updating);

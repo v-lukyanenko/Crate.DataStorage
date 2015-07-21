@@ -20,7 +20,7 @@ namespace Crate.Core
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="t">The t.</param>
-        void Update<T>(T t) where T : new();
+        void Update<T>(T t);
 
         /// <summary>
         /// Removes the specified t.
