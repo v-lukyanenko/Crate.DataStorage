@@ -37,9 +37,13 @@ namespace Crate.UI
                 CarId = 3
             };
 
-            DataContext.Pairs.Add("Test", "Test message");
+            DataContext.Pairs.Add("Greeting", "Hello world!");
 
-            var testPair = DataContext.Pairs.Get("Test");
+            var greeting = DataContext.Pairs.Get("Greeting");
+
+            DataContext.Pairs.Update("Greeting", "=> Hello world <=");
+
+            DataContext.Pairs.Remove("Greeting");
 
             var crate = new Storage("Crate");
 
@@ -49,9 +53,11 @@ namespace Crate.UI
 
             Dc.SubmitChanges(crate);
 
-            var test = Dc.Select<Person>(crate).First(c => c.Age == 54);
-
-            crate.Remove(test);
+            var person = Dc.Select<Person>(crate).First(c => c.Age == 54);
+            crate.Remove(person);
+            Dc.SubmitChanges(crate);
+            
+            DataContext.Pairs.ClearAll();
             Dc.SubmitChanges(crate);
         }
     }
