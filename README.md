@@ -1,4 +1,4 @@
-`Crate` is an xml based local data storage with LINQ to Object interface.
+`Crate` is a jSon based local data storage with LINQ to Object interface.
 
 Installation
 ---
@@ -19,16 +19,51 @@ Features
 How to start?
 ---  
 
+Objects
+---
+
 1. Create a new instance of the DataContext <br/>
 `IDataContext Dc = new DataContext(@"C:\Crate\");`
 
-2. Add some data <br/>
+2. Create Storage <br/>
+`var crate = new Storage("Crate");`
+
+3. Add some data <br/>
 `var car = new Car { Name = "Honda", Model = "Accord" };` <br/>
-`Dc.Add(car);` <br/>
-`Dc.SubmitChanges();`
+`crate.Add(car);` <br/>
+`Dc.SubmitChanges(crate);`
 
-3. Get data <br/>
-`var cars = Dc.Get<Car>().Where(c => c.Name == "Honda");`
+4. Get all objects from the Storage of the certain type <br/>
+`var data = Dc.Select<Person>(crate)`
 
-4. Get all objects of the certain type directly from file <br/>
-`var data = DataContext.Read<Car>();`
+5. Get specific data <br/>
+`var car = Dc.Select<Person>(crate).First(c => c.Model == "Accord");`
+
+6. Update <br/>
+`var person = Dc.Select<Person>(crate).First(c => c.Age == 54);`<br/>
+`person.Name = "John Snow";`<br/>
+`crate.Update(person);`<br/>
+`Dc.SubmitChanges(crate);`<br/>
+
+7. Remove <br/>
+`var person = Dc.Select<Person>(crate).First(c => c.Age == 54);`<br/>
+`crate.Remove(person);`<br/>
+`Dc.SubmitChanges(crate)`<br/>
+
+Pairs
+---
+
+1. Write key-value data <br/>
+`DataContext.Pairs.Add("Greeting", "Hello world!");`
+
+2. Get value by Key <br/>
+`var greeting = DataContext.Pairs.Get("Greeting");`
+
+3. Update value by Key <br/>
+`DataContext.Pairs.Update("Greeting", "=> Hello world <=");`
+
+4. Remove pair by Key <br/>
+`DataContext.Pairs.Remove("Greeting");`
+
+5. Remove all Pairs <br/>
+`DataContext.Pairs.ClearAll();`
