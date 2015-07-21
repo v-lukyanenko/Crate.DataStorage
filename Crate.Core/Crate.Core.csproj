@@ -43,18 +43,32 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="Helpers.cs" />
+    <Compile Include="IDataContext.cs" />
+    <Compile Include="IPair.cs" />
+    <Compile Include="IStorage.cs" />
+    <Compile Include="OperationType.cs" />
+    <Compile Include="Resource.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resource.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Storage.cs" />
     <Compile Include="DataContext.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="FileSystem.cs" />
-    <Compile Include="IDataContext.cs" />
-    <Compile Include="IFileSystem.cs" />
     <Compile Include="Instance.cs" />
-    <Compile Include="IXmlDataSerializer.cs" />
+    <Compile Include="Pair.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="XmlDataSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resource.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resource.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

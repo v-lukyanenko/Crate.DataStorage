@@ -1,4 +1,6 @@
-﻿
+﻿using System;
+using Newtonsoft.Json;
+
 namespace Crate.Core
 {
     public class Instance
@@ -9,7 +11,8 @@ namespace Crate.Core
         /// <value>
         /// The identifier.
         /// </value>
-        public int Id { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public Guid? Id { get; set; }
 
         /// <summary>
         /// Gets or sets the name.
@@ -26,5 +29,14 @@ namespace Crate.Core
         /// The object.
         /// </value>
         public string Object { get; set; }
+
+        /// <summary>
+        /// Gets or sets the type.
+        /// </summary>
+        /// <value>
+        /// The type.
+        /// </value>
+        [JsonIgnore]
+        public OperationType Type { get; set; }
     }
 }
