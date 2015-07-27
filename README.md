@@ -28,11 +28,11 @@ Objects
 ---
 
 1. Create a new instance of the DataContext <br/>
-Save to File
-`IDataContext Dc = new DataContext(@"C:\Crate\");`
+    1.1 Save to File
+    `IDataContext Dc = new DataContext(@"C:\Crate\");`
 
-Save to Sql Server Db <br/>
-`private const string ConnectionString = @"Data Source=(local);Initial Catalog=Crate;Integrated Security=true;";`
+    1.2 Save to Sql Server Db <br/>
+    `private const string ConnectionString = @"Data Source=(local);Initial Catalog=Crate;Integrated Security=true;";`
 
 2. Create Storage <br/>
 `var crate = new Storage("Crate");`
