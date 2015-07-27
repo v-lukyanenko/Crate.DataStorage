@@ -34,7 +34,7 @@ Objects
     1.2 Save to Sql Server Db <br/>
     `private const string ConnectionString = @"Data Source=(local);Initial Catalog=Crate;Integrated Security=true;";`
 
-2. Create Storage <br/>
+2. Create a Storage <br/>
 `var crate = new Storage("Crate");`
 
 3. Add some data <br/>
@@ -48,13 +48,13 @@ Objects
 5. Get specific data <br/>
 `var car = Dc.Select<Person>(crate).First(c => c.Model == "Accord");`
 
-6. Update <br/>
+6. Update entry <br/>
 `var person = Dc.Select<Person>(crate).First(c => c.Age == 54);`<br/>
 `person.Name = "John Snow";`<br/>
 `crate.Update(person);`<br/>
 `Dc.SubmitChanges(crate);`<br/>
 
-7. Remove <br/>
+7. Remove entry <br/>
 `var person = Dc.Select<Person>(crate).First(c => c.Age == 54);`<br/>
 `crate.Remove(person);`<br/>
 `Dc.SubmitChanges(crate)`<br/>
@@ -62,16 +62,16 @@ Objects
 Pairs
 ---
 
-1. Write key-value data <br/>
+1. Write a key-value data <br/>
 `DataContext.Pairs.Add("Greeting", "Hello world!");`
 
-2. Get value by Key <br/>
+2. Get a value by Key <br/>
 `var greeting = DataContext.Pairs.Get("Greeting");`
 
-3. Update value by Key <br/>
+3. Update a value by Key <br/>
 `DataContext.Pairs.Update("Greeting", "=> Hello world <=");`
 
-4. Remove pair by Key <br/>
+4. Remove a pair by Key <br/>
 `DataContext.Pairs.Remove("Greeting");`
 
 5. Remove all Pairs <br/>
