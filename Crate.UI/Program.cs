@@ -1,12 +1,14 @@
-﻿using System.Linq;
-using Crate.Core;
+﻿using System;
+using Crate.Core.DataContext;
+using Crate.Core.Repositories;
 using Crate.UI.Models;
 
 namespace Crate.UI
 {
     internal class Program
     {
-        private static readonly IDataContext Dc = new DataContext(@"C:\Temp\");
+        private const string ConnectionString = @"Data Source=VLADIMIR5D4B\SQLSERVER;Initial Catalog=Crate;Integrated Security=true;";
+        private static readonly IDataContext Dc = new SqlContext(ConnectionString);
 
         private static void Main(string[] args)
         {
@@ -37,28 +39,16 @@ namespace Crate.UI
                 CarId = 3
             };
 
-            DataContext.Pairs.Add("Greeting", "Hello world!");
+            var repository = new Repository("Rep");
+            repository.Add(p);
+            Dc.SubmitChanges(repository);
 
-            var greeting = DataContext.Pairs.Get("Greeting");
+            var people = Dc.Select<Person>(repository);
+            Dc.Clear<Person>(repository);
 
-            DataContext.Pairs.Update("Greeting", "=> Hello world <=");
-
-            DataContext.Pairs.Remove("Greeting");
-
-            var crate = new Storage("Crate");
-
-            crate.Add(p);
-            crate.Add(p1);
-            crate.Add(p2);
-
-            Dc.SubmitChanges(crate);
-
-            var person = Dc.Select<Person>(crate).First(c => c.Age == 54);
-            crate.Remove(person);
-            Dc.SubmitChanges(crate);
+            Dc.Pairs.Add("Key1", "Value");
             
-            DataContext.Pairs.ClearAll();
-            Dc.SubmitChanges(crate);
+            Console.WriteLine(Dc.Pairs.Get("Key2"));
         }
     }
 }

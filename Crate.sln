@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crate.Tests", "Crate.Tests\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crate.UI", "Crate.UI\Crate.UI.csproj", "{DEE6738C-A131-441A-8BCA-7B75A8A774BC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crate.DataAccess", "Crate.DataAccess\Crate.DataAccess.csproj", "{12E3EF76-A8CA-4970-84AE-5D27A0E620EB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{DEE6738C-A131-441A-8BCA-7B75A8A774BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DEE6738C-A131-441A-8BCA-7B75A8A774BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DEE6738C-A131-441A-8BCA-7B75A8A774BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12E3EF76-A8CA-4970-84AE-5D27A0E620EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12E3EF76-A8CA-4970-84AE-5D27A0E620EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12E3EF76-A8CA-4970-84AE-5D27A0E620EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12E3EF76-A8CA-4970-84AE-5D27A0E620EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

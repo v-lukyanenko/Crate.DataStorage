@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DBC2CE1A-7634-44A1-AE61-037FED02CD8C}</ProjectGuid>
+    <ProjectGuid>{12E3EF76-A8CA-4970-84AE-5D27A0E620EB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Crate.Core</RootNamespace>
-    <AssemblyName>Crate.Core</AssemblyName>
+    <RootNamespace>Crate.DataAccess</RootNamespace>
+    <AssemblyName>Crate.DataAccess</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,9 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.5.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -42,40 +39,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Constants.cs" />
-    <Compile Include="Helpers\FileHelpers.cs" />
-    <Compile Include="DataContext\IDataContext.cs" />
-    <Compile Include="Pairs\IPair.cs" />
-    <Compile Include="Pairs\PairToSql.cs" />
-    <Compile Include="Repositories\IRepository.cs" />
-    <Compile Include="OperationType.cs" />
-    <Compile Include="Resource.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resource.resx</DependentUpon>
-    </Compile>
-    <Compile Include="DataContext\SqlContext.cs" />
-    <Compile Include="Repositories\Repository.cs" />
-    <Compile Include="DataContext\FileContext.cs" />
-    <Compile Include="Extensions.cs" />
-    <Compile Include="Models\Instance.cs" />
-    <Compile Include="Pairs\PairToFile.cs" />
+    <Compile Include="FileProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resource.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resource.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Crate.DataAccess\Crate.DataAccess.csproj">
-      <Project>{12e3ef76-a8ca-4970-84ae-5d27a0e620eb}</Project>
-      <Name>Crate.DataAccess</Name>
-    </ProjectReference>
+    <Compile Include="SqlProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
