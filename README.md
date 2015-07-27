@@ -1,4 +1,4 @@
-`Crate` is a jSon based local data storage with LINQ to Object interface.
+`Crate` is a jSon based data storage with a LINQ to Object interface.
 
 Installation
 ---
@@ -15,6 +15,11 @@ Features
 - Easy to start - no config files
 - Easy to use - native LINQ to Object interface
 
+Applying
+--
+- Prototyping
+- Pet projects
+- Local not highly loaded projects
 
 How to start?
 ---  
@@ -23,7 +28,11 @@ Objects
 ---
 
 1. Create a new instance of the DataContext <br/>
+Save to File
 `IDataContext Dc = new DataContext(@"C:\Crate\");`
+
+Save to Sql Server Db
+`private const string ConnectionString = @"Data Source=(local);Initial Catalog=Crate;Integrated Security=true;";`
 
 2. Create Storage <br/>
 `var crate = new Storage("Crate");`
