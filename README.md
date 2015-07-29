@@ -32,7 +32,7 @@ Objects
     `IDataContext Dc = new FileContext(@"C:\Crate\");`
 
     1.2 Save to Sql Server Db <br/>
-    `private const string ConnectionString = @"Data Source=(local);Initial Catalog=Crate;Integrated Security=true;";`
+    `private const string ConnectionString = @"Data Source=(local);Initial Catalog=Crate;Integrated Security=true;";` <br/>
     `private static readonly IDataContext Dc = new SqlContext(ConnectionString);`
 
 2. Create a Storage <br/>
