@@ -7,13 +7,13 @@ namespace Crate.DataAccess
     /// <summary>
     /// Sql Provider
     /// </summary>
-    public class SqlProvider
+    public class SqlServerProvider : ISqlProvider
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SqlProvider"/> class.
+        /// Initializes a new instance of the <see cref="SqlServerProvider"/> class.
         /// </summary>
         /// <param name="connectionString">The connection string.</param>
-        public SqlProvider(string connectionString)
+        public SqlServerProvider(string connectionString)
         {
             _connectionString = connectionString;
         }
@@ -27,16 +27,18 @@ namespace Crate.DataAccess
         /// <returns></returns>
         public IEnumerable<string> Select(string query, Dictionary<string, string> parameters)
         {
-            using (var cn = new SqlConnection(_connectionString))
-            using (var cmd = new SqlCommand(query, cn))
+            using (var connection = new SqlConnection(_connectionString))
             {
-                AddParameters(cmd, parameters);
-
-                cn.Open();
-                var reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                    yield return reader["Object"].ToString();
+                using (var cmd = new SqlCommand(query, connection))
+                {
+                    AddParameters(cmd, parameters);
+                    connection.Open();
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                            yield return reader["Object"].ToString();
+                    }
+                }
             }
         }
 
@@ -47,14 +49,15 @@ namespace Crate.DataAccess
         /// <param name="parameters">The parameters.</param>
         public void RunQuery(string query, Dictionary<string, string> parameters)
         {
-            using (var cn = new SqlConnection(_connectionString))
-            using (var cmd = new SqlCommand(query, cn))
+            using (var connection = new SqlConnection(_connectionString))
             {
-                AddParameters(cmd, parameters);
-
-                cn.Open();
-                cmd.ExecuteNonQuery();
-                cn.Close();
+                using (var cmd = new SqlCommand(query, connection))
+                {
+                    AddParameters(cmd, parameters);
+                    connection.Open();
+                    cmd.ExecuteReader();
+                    connection.Close();
+                }
             }
         }
 

@@ -7,8 +7,9 @@ namespace Crate.UI
 {
     internal class Program
     {
-        private const string ConnectionString = @"Data Source=VLADIMIR5D4B\SQLSERVER;Initial Catalog=Crate;Integrated Security=true;";
-        private static readonly IDataContext Dc = new SqlContext(ConnectionString);
+        private const string ConnectionString = @"datasource=localhost;Database=crate;port=3306;username=root;password=root;";
+            //@"Data Source=VLADIMIR5D4B\SQLSERVER;Initial Catalog=Crate;Integrated Security=true;";
+        private static readonly IDataContext Dc = new MySqlContext(ConnectionString);
 
         private static void Main(string[] args)
         {
@@ -44,11 +45,13 @@ namespace Crate.UI
             Dc.SubmitChanges(repository);
 
             var people = Dc.Select<Person>(repository);
+
             Dc.Clear<Person>(repository);
 
-            Dc.Pairs.Add("Key1", "Value");
-            
-            Console.WriteLine(Dc.Pairs.Get("Key2"));
+            Dc.Pairs.Add("Key779", "Refactored code!");
+
+            var pair = Dc.Pairs.Get("Key779");
+            Console.WriteLine(pair);
         }
     }
 }

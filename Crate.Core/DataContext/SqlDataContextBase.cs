@@ -1,33 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Crate.Core.Models;
-using Crate.Core.Pairs;
 using Crate.Core.Repositories;
 using Crate.DataAccess;
 using Newtonsoft.Json;
 
 namespace Crate.Core.DataContext
 {
-    public class SqlContext : IDataContext
+    public class SqlDataContextBase
     {
-        public SqlContext(string connectionString)
+        public SqlDataContextBase(ISqlProvider sqlDataAccess)
         {
-            _sqlDataAccess = new SqlProvider(connectionString);
-            Pairs = new PairToSql(connectionString);
+            _sqlDataAccess = sqlDataAccess;
         }
 
-        /// <summary>
-        /// The pairs
-        /// </summary>
-        public IPair Pairs { get; private set; }
-
         #region Public Methods
-        /// <summary>
-        /// Reads this instance.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="repository"></param>
-        /// <returns></returns>
+
         public IEnumerable<T> Select<T>(IRepository repository)
         {
             var parameters = new Dictionary<string, string>
@@ -37,17 +25,12 @@ namespace Crate.Core.DataContext
             };
 
             var data = _sqlDataAccess.Select(SelectQuery, parameters);
-
             return data.Select(JsonConvert.DeserializeObject<T>).ToList();
         }
 
-        /// <summary>
-        /// Submits the changes.
-        /// </summary>
-        /// <param name="repository">The repository.</param>
         public void SubmitChanges(IRepository repository)
         {
-            var names = repository.Data.DistinctBy(c => c.Name);
+            var names = repository.Data.DistinctBy(c => c.Name).ToList();
 
             foreach (var data in names)
                 SubmitChanges(repository, data);
@@ -55,12 +38,6 @@ namespace Crate.Core.DataContext
             repository.Data.Clear();
         }
 
-        /// <summary>
-        /// Clears the specified repository.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="repository">The repository.</param>
-        /// <exception cref="System.NotImplementedException"></exception>
         public void Clear<T>(IRepository repository)
         {
             var parameters = new Dictionary<string, string>
@@ -71,15 +48,10 @@ namespace Crate.Core.DataContext
             _sqlDataAccess.RunQuery(ClearQuery, parameters);
         }
 
-        /// <summary>
-        /// Clears all.
-        /// </summary>
         public void ClearAll()
         {
             _sqlDataAccess.RunQuery(ClearAllQuery, null);
         }
-
-        
         #endregion Public Methods
 
         #region Private Methods
@@ -137,29 +109,21 @@ namespace Crate.Core.DataContext
         #endregion
 
         #region Queries
-        private const string SelectQuery = "SELECT * FROM dbo.Instance " +
-                                           "WHERE Name = @Name and Repository = @Repository";
-
-        private const string InsertQuery = "INSERT INTO dbo.Instance (GuidID, Name, Object, Repository) " +
-                                           "VALUES (@GuidId, @Name, @Object, @Repository)";
-
-        private const string UpdateQuery = "UPDATE dbo.Instance SET Object = @Object " +
-                                           "WHERE Id = @Id AND Repository = @Repository";
-
-        private const string DeleteQuery = "Delete from dbo.Instance " +
-                                           "WHERE Id = @Id AND Repository = @Repository";
-
-        private const string ClearQuery = "Delete from dbo.Instance " +
-                                          "WHERE Repository = @Repository";
-
-        private const string ClearAllQuery = "Delete from dbo.Instance";
+        protected const string SelectQuery = "SELECT * FROM instance WHERE Name = @Name and Repository = @Repository";
+        protected const string InsertQuery = "INSERT INTO instance (GuidID, Name, Object, Repository) " +
+                                             "VALUES (@GuidID, @Name, @Object, @Repository)";
+        protected const string UpdateQuery = "UPDATE Instance SET Object = @Object WHERE GuidID = @GuidID AND Repository = @Repository";
+        protected const string DeleteQuery = "Delete from Instance WHERE GuidID = @GuidID AND Repository = @Repository";
+        protected const string ClearQuery = "Delete from Instance WHERE Repository = @Repository";
+        protected const string ClearAllQuery = "Delete from Instance";
         #endregion
 
-        private const string NameSql = "@Name";
-        private const string GuidIdSql = "@GuidID";
-        private const string ObjectSql = "@Object";
-        private const string RepositorySql = "@Repository";
+        protected const string NameSql = "@Name";
+        protected const string GuidIdSql = "@GuidID";
+        protected const string ObjectSql = "@Object";
+        protected const string RepositorySql = "@Repository";
 
-        private readonly SqlProvider _sqlDataAccess;
+        private readonly ISqlProvider _sqlDataAccess;
+        
     }
 }

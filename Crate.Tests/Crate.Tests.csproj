@@ -55,7 +55,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RepositoryTest.cs" />
     <Compile Include="FileContextTest.cs" />
-    <Compile Include="SqlContextTest.cs" />
+    <Compile Include="SqlServerContextTest.cs" />
+    <Compile Include="MySqlContextTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Crate.Core\Crate.Core.csproj">

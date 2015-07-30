@@ -5,14 +5,11 @@ using Newtonsoft.Json;
 
 namespace Crate.Core.Pairs
 {
-    /// <summary>
-    /// Writes Pairs to Sql
-    /// </summary>
-    public class PairToSql : IPair
+    public class PairsToSqlBase : IPair
     {
-        public PairToSql(string connectionString)
+        public PairsToSqlBase(ISqlProvider sqlDataAccess)
         {
-            _sqlDataAccess = new SqlProvider(connectionString);
+            _sqlDataAccess = sqlDataAccess;
         }
 
         #region Public Methods
@@ -91,7 +88,7 @@ namespace Crate.Core.Pairs
         {
             var parameters = new Dictionary<string, string>();
 
-            if(!string.IsNullOrWhiteSpace(key))
+            if (!string.IsNullOrWhiteSpace(key))
                 parameters.Add(KeySql, key);
 
             if (!string.IsNullOrWhiteSpace(value))
@@ -101,22 +98,17 @@ namespace Crate.Core.Pairs
         }
 
         #region Queries
-        private const string SelectQuery = "SELECT * FROM dbo.Pairs WHERE [Key] = @Key";
-
-        private const string InsertQuery = "INSERT INTO dbo.Pairs ([Key], Object) VALUES (@Key, @Object)";
-
-        private const string UpdateQuery = "UPDATE dbo.Pairs SET Object = @Object WHERE [Key] = @Key";
-
-        private const string DeleteQuery = "Delete from dbo.Pairs WHERE [Key] = @Key";
-
-        private const string ClearAllQuery = "Delete from dbo.Pairs";
-
-        private const string IfExistsQuery = "SELECT * FROM dbo.Pairs WHERE [Key] = @Key";
+        private const string SelectQuery = "SELECT * FROM Pairs WHERE UniqueKey = @Key";
+        private const string InsertQuery = "INSERT INTO Pairs (UniqueKey, Object) VALUES (@Key, @Object)";
+        private const string UpdateQuery = "UPDATE Pairs SET Object = @Object WHERE UniqueKey = @Key";
+        private const string DeleteQuery = "Delete from Pairs WHERE UniqueKey = @Key";
+        private const string ClearAllQuery = "Delete from Pairs";
+        private const string IfExistsQuery = "SELECT * FROM Pairs WHERE UniqueKey = @Key";
         #endregion
 
         private const string KeySql = "@Key";
         private const string ValueSql = "@Object";
 
-        private readonly SqlProvider _sqlDataAccess;
+        private readonly ISqlProvider _sqlDataAccess;
     }
 }

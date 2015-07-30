@@ -7,13 +7,13 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Crate.Tests
 {
     [TestClass]
-    public class SqlContextTest
+    public class SqlServerContextTest
     {
         [TestMethod]
         public void AddANewEntryToTheRepositoryTest()
         {
             const string connectionString = @"Data Source=VLADIMIR5D4B\SQLSERVER;Initial Catalog=Crate;Integrated Security=true;";
-            var dc = new FileContext(connectionString);
+            var dc = new SqlServerContext(connectionString);
 
             var p = new Person
             {
@@ -38,7 +38,7 @@ namespace Crate.Tests
         public void RemoveEntryFromRepositoryTest()
         {
             const string connectionString = @"Data Source=VLADIMIR5D4B\SQLSERVER;Initial Catalog=Crate;Integrated Security=true;";
-            var dc = new FileContext(connectionString);
+            var dc = new SqlServerContext(connectionString);
 
             var p = new Person
             {
@@ -66,7 +66,7 @@ namespace Crate.Tests
         public void UpdateEntryTest()
         {
             const string connectionString = @"Data Source=VLADIMIR5D4B\SQLSERVER;Initial Catalog=Crate;Integrated Security=true;";
-            var dc = new FileContext(connectionString);
+            var dc = new SqlServerContext(connectionString);
 
             var p = new Person
             {
@@ -97,7 +97,7 @@ namespace Crate.Tests
         public void ClearItemsOfCertainTypeFromRepositoryTest()
         {
             const string connectionString = @"Data Source=VLADIMIR5D4B\SQLSERVER;Initial Catalog=Crate;Integrated Security=true;";
-            var dc = new FileContext(connectionString);
+            var dc = new SqlServerContext(connectionString);
 
             var p = new Person
             {
@@ -121,7 +121,7 @@ namespace Crate.Tests
         public void AddNewPairTest()
         {
             const string connectionString = @"Data Source=VLADIMIR5D4B\SQLSERVER;Initial Catalog=Crate;Integrated Security=true;";
-            var dc = new FileContext(connectionString);
+            var dc = new SqlServerContext(connectionString);
 
             const string expectedValue = "Hello Pair!";
 
@@ -135,7 +135,7 @@ namespace Crate.Tests
         public void RemovePairTest()
         {
             const string connectionString = @"Data Source=VLADIMIR5D4B\SQLSERVER;Initial Catalog=Crate;Integrated Security=true;";
-            var dc = new FileContext(connectionString);
+            var dc = new SqlServerContext(connectionString);
 
             const string expectedValue = "Hello Pair!";
 
@@ -146,14 +146,14 @@ namespace Crate.Tests
             dc.Pairs.Remove(pairName);
 
             var actual = dc.Pairs.Get(pairName);
-            Assert.AreEqual(false, actual.Contains(expectedValue));
+            Assert.AreEqual(null, actual);
         }
 
         [TestMethod]
         public void ClearAllPairTest()
         {
             const string connectionString = @"Data Source=VLADIMIR5D4B\SQLSERVER;Initial Catalog=Crate;Integrated Security=true;";
-            var dc = new FileContext(connectionString);
+            var dc = new SqlServerContext(connectionString);
 
             const string expectedValue = "Hello Pair!";
 
@@ -164,7 +164,7 @@ namespace Crate.Tests
             dc.Pairs.ClearAll();
 
             var actual = dc.Pairs.Get(pairName);
-            Assert.AreEqual(false, actual.Contains(expectedValue));
+            Assert.AreEqual(null, actual);
         }
     }
 }

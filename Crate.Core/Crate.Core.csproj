@@ -43,10 +43,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="DataContext\MySqlContext.cs" />
+    <Compile Include="DataContext\SqlDataContextBase.cs" />
     <Compile Include="Helpers\FileHelpers.cs" />
     <Compile Include="DataContext\IDataContext.cs" />
     <Compile Include="Pairs\IPair.cs" />
-    <Compile Include="Pairs\PairToSql.cs" />
+    <Compile Include="Pairs\PairsToSqlBase.cs" />
+    <Compile Include="Pairs\PairToMySql.cs" />
+    <Compile Include="Pairs\PairToSqlServer.cs" />
     <Compile Include="Repositories\IRepository.cs" />
     <Compile Include="OperationType.cs" />
     <Compile Include="Resource.Designer.cs">
@@ -54,7 +58,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resource.resx</DependentUpon>
     </Compile>
-    <Compile Include="DataContext\SqlContext.cs" />
+    <Compile Include="DataContext\SqlServerContext.cs" />
     <Compile Include="Repositories\Repository.cs" />
     <Compile Include="DataContext\FileContext.cs" />
     <Compile Include="Extensions.cs" />
