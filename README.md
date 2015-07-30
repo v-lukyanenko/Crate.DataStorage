@@ -24,7 +24,12 @@ Applying
 How to start?
 ---  
 
-Objects
+Create Sql tables
+---
+Scripts for Sql Server and MySql databases you can find in the Scripts folder
+
+
+Save Objects
 ---
 
 1. Create a new instance of the DataContext <br/>
@@ -64,7 +69,7 @@ Objects
 `crate.Remove(person);`<br/>
 `Dc.SubmitChanges(crate)`<br/>
 
-Pairs
+Save Pairs
 ---
 
 1. Write a key-value data <br/>
