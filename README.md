@@ -28,12 +28,16 @@ Objects
 ---
 
 1. Create a new instance of the DataContext <br/>
-    1.1 Save to File <br/>
+    1.1 Write to File <br/>
     `IDataContext Dc = new FileContext(@"C:\Crate\");`
 
-    1.2 Save to Sql Server Db <br/>
+    1.2 Write to Sql Server Db <br/>
     `private const string ConnectionString = @"Data Source=(local);Initial Catalog=Crate;Integrated Security=true;";` <br/>
     `private static readonly IDataContext Dc = new SqlContext(ConnectionString);`
+    
+    1.3 Write to MySql Db <br/>
+    `private const string ConnectionString = @"datasource=localhost;Database=crate;port=3306;username=root;password=root;";` <br/>
+    `private static readonly IDataContext Dc = new MySqlContext(ConnectionString)`
 
 2. Create a Storage <br/>
 `var crate = new Storage("Crate");`
