@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crate.Core", "Crate.Core\Crate.Core.csproj", "{DBC2CE1A-7634-44A1-AE61-037FED02CD8C}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crate.UI", "Crate.UI\Crate.UI.csproj", "{DEE6738C-A131-441A-8BCA-7B75A8A774BC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crate.DataAccess", "Crate.DataAccess\Crate.DataAccess.csproj", "{12E3EF76-A8CA-4970-84AE-5D27A0E620EB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crate.ManagementStudio", "Crate.ManagementStudio\Crate.ManagementStudio.csproj", "{AEE6AB61-905D-4AE1-87CA-9F76E86B440A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{12E3EF76-A8CA-4970-84AE-5D27A0E620EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12E3EF76-A8CA-4970-84AE-5D27A0E620EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12E3EF76-A8CA-4970-84AE-5D27A0E620EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEE6AB61-905D-4AE1-87CA-9F76E86B440A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEE6AB61-905D-4AE1-87CA-9F76E86B440A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEE6AB61-905D-4AE1-87CA-9F76E86B440A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEE6AB61-905D-4AE1-87CA-9F76E86B440A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

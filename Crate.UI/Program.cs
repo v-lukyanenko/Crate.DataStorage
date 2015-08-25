@@ -7,9 +7,15 @@ namespace Crate.UI
 {
     internal class Program
     {
-        private const string ConnectionString = @"datasource=localhost;Database=crate;port=3306;username=root;password=root;";
-            //@"Data Source=VLADIMIR5D4B\SQLSERVER;Initial Catalog=Crate;Integrated Security=true;";
-        private static readonly IDataContext Dc = new MySqlContext(ConnectionString);
+        private const string ConnectionString =
+            @"Data Source=VLADIMIR5D4B\SQLSERVER;Initial Catalog=Crate;Integrated Security=true;";
+        
+        //@"datasource=localhost;Database=crate;port=3306;username=root;password=root;";
+        //@"Data Source=VLADIMIR5D4B\SQLSERVER;Initial Catalog=Crate;Integrated Security=true;";
+        //@"datasource=localhost;Database=crate;port=3306;username=root;password=root;";
+        //private const string FilePath = @"C:\Temp\CrateStorage\";
+
+        private static readonly IDataContext Dc = new SqlServerContext(ConnectionString);
 
         private static void Main(string[] args)
         {
@@ -42,11 +48,13 @@ namespace Crate.UI
 
             var repository = new Repository("Rep");
             repository.Add(p);
+            repository.Add(p1);
+            repository.Add(p2);
             Dc.SubmitChanges(repository);
-
+            
             var people = Dc.Select<Person>(repository);
 
-            Dc.Clear<Person>(repository);
+            //Dc.Clear<Person>(repository);
 
             Dc.Pairs.Add("Key779", "Refactored code!");
 

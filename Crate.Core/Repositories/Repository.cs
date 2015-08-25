@@ -42,7 +42,7 @@ namespace Crate.Core.Repositories
         /// <param name="t">The t.</param>
         public void Add<T>(T t)
         {
-            IsEnumerable(t);
+            IsEnumerable<T>();
 
             var current = (dynamic) t;
             current.Id = Guid.NewGuid();
@@ -57,8 +57,13 @@ namespace Crate.Core.Repositories
         /// <param name="t">The t.</param>
         public void Update<T>(T t)
         {
-            IsEnumerable(t);
+            IsEnumerable<T>();
             AddInstance(t, OperationType.Updating);
+        }
+
+        public void UpdateFromDictionary(IReadOnlyDictionary<string, string> data)
+        {
+            AddInstance(data, OperationType.Updating);
         }
 
         /// <summary>
@@ -68,8 +73,17 @@ namespace Crate.Core.Repositories
         /// <param name="t">The t.</param>
         public void Remove<T>(T t)
         {
-            IsEnumerable(t);
+            IsEnumerable<T>();
             AddInstance(t, OperationType.Removing);
+        }
+
+        /// <summary>
+        /// Removes the specified identifier.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        public void Remove(Guid id)
+        {
+            AddInstance(id, OperationType.Removing);
         }
 
         /// <summary>
@@ -82,7 +96,7 @@ namespace Crate.Core.Repositories
         #endregion
 
         #region Private Region
-        private static void IsEnumerable<T>(T t)
+        private static void IsEnumerable<T>()
         {
             if(typeof(T).Name.Contains(typeof(IEnumerable).Name))
                 throw new Exception(Resource.IEnumerableError);
@@ -93,6 +107,39 @@ namespace Crate.Core.Repositories
             var type = typeof(T).Name;
             var instance = Create(type, t, operationType);
             Data.Add(instance);
+        }
+
+        private void AddInstance(Guid id, OperationType operationType)
+        {
+            var instance = Create("", id, operationType);
+            Data.Add(instance);
+        }
+
+        private void AddInstance(IReadOnlyDictionary<string, string> data, OperationType operationType)
+        {
+            var instance = Create(data, operationType);
+            Data.Add(instance);
+        }
+
+        private static Instance Create(IReadOnlyDictionary<string, string> data, OperationType operationType)
+        {
+            return new Instance
+            {
+                Id = Guid.Parse(data["Id"]),
+                Object = JsonConvert.SerializeObject(data),
+                Type = operationType
+            };
+        }
+
+        private static Instance Create(string type, Guid id, OperationType operationType)
+        {
+            return new Instance
+            {
+                Id = id,
+                Name = type,
+                Object = null,
+                Type = operationType
+            };
         }
 
         private static Instance Create(string type, dynamic obj, OperationType operationType)

@@ -12,7 +12,25 @@ namespace Crate.DataAccess
         }
 
         #region Public Methods
-        public IEnumerable<string> Select(string query, Dictionary<string, string> parameters)
+
+        /// <summary>
+        /// Checks the connection.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public bool CheckConnection()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        /// <summary>
+        /// Selects the specified quert.
+        /// </summary>
+        /// <param name="query"></param>
+        /// <param name="parameters">The parameters.</param>
+        /// <param name="column"></param>
+        /// <returns></returns>
+        public IEnumerable<string> Select(string query, Dictionary<string, string> parameters, string column)
         {
             using (var connection = new MySqlConnection(_connectionString))
             {
@@ -23,12 +41,17 @@ namespace Crate.DataAccess
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
-                            yield return reader["Object"].ToString();
+                            yield return reader[column].ToString();
                     }
                 }
             }
         }
 
+        /// <summary>
+        /// Runs the query.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="parameters">The parameters.</param>
         public void RunQuery(string query, Dictionary<string, string> parameters)
         {
             using (var connection = new MySqlConnection(_connectionString))
@@ -43,6 +66,12 @@ namespace Crate.DataAccess
             }
         }
 
+        /// <summary>
+        /// Ifs the exists.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns></returns>
         public bool IfExists(string query, Dictionary<string, string> parameters)
         {
             bool result;

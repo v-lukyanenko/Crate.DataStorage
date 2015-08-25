@@ -32,6 +32,7 @@
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.5.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -49,8 +50,8 @@
     <Compile Include="DataContext\IDataContext.cs" />
     <Compile Include="Pairs\IPair.cs" />
     <Compile Include="Pairs\PairsToSqlBase.cs" />
-    <Compile Include="Pairs\PairToMySql.cs" />
-    <Compile Include="Pairs\PairToSqlServer.cs" />
+    <Compile Include="Pairs\PairsToMySql.cs" />
+    <Compile Include="Pairs\PairsToSqlServer.cs" />
     <Compile Include="Repositories\IRepository.cs" />
     <Compile Include="OperationType.cs" />
     <Compile Include="Resource.Designer.cs">
@@ -63,11 +64,8 @@
     <Compile Include="DataContext\FileContext.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Models\Instance.cs" />
-    <Compile Include="Pairs\PairToFile.cs" />
+    <Compile Include="Pairs\PairsToFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resource.resx">
@@ -80,6 +78,9 @@
       <Project>{12e3ef76-a8ca-4970-84ae-5d27a0e620eb}</Project>
       <Name>Crate.DataAccess</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

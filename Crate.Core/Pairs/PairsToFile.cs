@@ -11,12 +11,12 @@ namespace Crate.Core.Pairs
     /// <summary>
     /// Saves Pair to File
     /// </summary>
-    public class PairToFile : IPair
+    public class PairsToFile : IPair
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="PairToFile"/> class.
+        /// Initializes a new instance of the <see cref="PairsToFile"/> class.
         /// </summary>
-        public PairToFile(string path)
+        public PairsToFile(string path)
         {
             _fileProvider = new FileProvider();
             _path = path;

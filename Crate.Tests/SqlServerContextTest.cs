@@ -35,6 +35,79 @@ namespace Crate.Tests
         }
 
         [TestMethod]
+        public void SelectDataInKeyValueFormatTest()
+        {
+            const string connectionString = @"Data Source=VLADIMIR5D4B\SQLSERVER;Initial Catalog=Crate;Integrated Security=true;";
+            var dc = new SqlServerContext(connectionString);
+
+            var p = new Person
+            {
+                Name = "John Doe",
+                Age = 24,
+                Email = "john.doe@email.com"
+            };
+
+            var repository = new Repository("TestRep");
+
+            dc.Clear<Person>(repository);
+
+            repository.Add(p);
+            dc.SubmitChanges(repository);
+
+            var people = dc.Select(repository.Name, "Person").ToList();
+
+            Assert.AreEqual(4, people[0].Count());
+        }
+
+        [TestMethod]
+        public void GetAllRepositoriesTest()
+        {
+            const string connectionString = @"Data Source=VLADIMIR5D4B\SQLSERVER;Initial Catalog=Crate;Integrated Security=true;";
+            var dc = new SqlServerContext(connectionString);
+
+            var p = new Person
+            {
+                Name = "John Doe",
+                Age = 24,
+                Email = "john.doe@email.com"
+            };
+
+            var repository = new Repository("TestRep");
+            repository.Add(p);
+            dc.SubmitChanges(repository);
+
+            var repository1 = new Repository("TestRep1");
+            repository.Add(p);
+            dc.SubmitChanges(repository1);
+
+            var repositories = dc.GetRepositories();
+
+            Assert.AreNotEqual(0, repositories.Count());
+        }
+
+        [TestMethod]
+        public void GetAllObjectsOfCertainTypeFromRepositoryTest()
+        {
+            const string connectionString = @"Data Source=VLADIMIR5D4B\SQLSERVER;Initial Catalog=Crate;Integrated Security=true;";
+            var dc = new SqlServerContext(connectionString);
+
+            var p = new Person
+            {
+                Name = "John Doe",
+                Age = 24,
+                Email = "john.doe@email.com"
+            };
+
+            var repository = new Repository("TestRep");
+            repository.Add(p);
+            dc.SubmitChanges(repository);
+
+            var repositories = dc.GetObjects("TestRep");
+
+            Assert.AreNotEqual(0, repositories.Count());
+        }
+
+        [TestMethod]
         public void RemoveEntryFromRepositoryTest()
         {
             const string connectionString = @"Data Source=VLADIMIR5D4B\SQLSERVER;Initial Catalog=Crate;Integrated Security=true;";

@@ -20,7 +20,17 @@ namespace Crate.Core.DataContext
         {
             _filePath = filePath;
             _fileProvider = new FileProvider();
-            Pairs = new PairToFile(filePath);
+            Pairs = new PairsToFile(filePath);
+        }
+
+        /// <summary>
+        /// Checks the connection.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public bool CheckConnection()
+        {
+            throw new System.NotImplementedException();
         }
 
         /// <summary>
@@ -36,14 +46,20 @@ namespace Crate.Core.DataContext
         /// <returns></returns>
         public IEnumerable<T> Select<T>(IRepository repository)
         {
-            var fullPath = FullPath(repository.Name, typeof(T).Name);
-            var jSon = _fileProvider.Read(fullPath);
-
-            if (jSon == null)
-                return new List<T>();
-
-            var instances = JsonConvert.DeserializeObject<List<Instance>>(jSon);
+            var instances = GetInstances(repository.Name, typeof(T).Name);
             return instances == null ? null : instances.Select(c => JsonConvert.DeserializeObject<T>(c.Object));
+        }
+
+        /// <summary>
+        /// Selects the specified repository.
+        /// </summary>
+        /// <param name="repository">The repository.</param>
+        /// <param name="dataType"></param>
+        /// <returns></returns>
+        public IEnumerable<Dictionary<string, object>> Select(string repository, string dataType)
+        {
+            var instances = GetInstances(repository, dataType);
+            return instances == null ? null : instances.Select(c => JsonConvert.DeserializeObject<Dictionary<string, object>>(c.Object));
         }
 
         /// <summary>
@@ -67,7 +83,7 @@ namespace Crate.Core.DataContext
         /// <param name="repository">The repository.</param>
         public void Clear<T>(IRepository repository)
         {
-            var type = typeof (T).Name;
+            var type = typeof(T).Name;
             var path = FullPath(repository.Name, type);
             _fileProvider.DeleteFile(path);
         }
@@ -79,6 +95,31 @@ namespace Crate.Core.DataContext
         {
             _fileProvider.DeleteDirectory(_filePath);
         }
+
+        /// <summary>
+        /// Gets all repositories.
+        /// </summary>
+        /// <returns></returns>
+        public List<string> GetRepositories()
+        {
+            return Directory.GetDirectories(_filePath).Select(Path.GetFileName).ToList();
+        }
+
+        /// <summary>
+        /// Gets the objects.
+        /// </summary>
+        /// <param name="repository">The repository.</param>
+        /// <returns></returns>
+        public List<string> GetObjects(string repository)
+        {
+            var repositoryPath = RepositoryPath(repository);
+
+            var dirInfo = new DirectoryInfo(repositoryPath);
+            var objects = dirInfo.GetFiles("*.txt");
+
+            return objects.Select(c => Path.GetFileNameWithoutExtension(c.Name)).ToList();
+        }
+
         #endregion
 
         #region Private Mathods
@@ -87,7 +128,7 @@ namespace Crate.Core.DataContext
             var fullPath = FullPath(repository.Name, data.Name);
             var directory = Path.GetDirectoryName(fullPath);
 
-            if (directory != null) 
+            if (directory != null)
                 Directory.CreateDirectory(directory);
 
             switch (data.Type)
@@ -108,7 +149,7 @@ namespace Crate.Core.DataContext
         {
             var newData = repository.Data.Where(c => c.Name == data.Name).ToList();
             var instances = FileHelpers.ReadOldDataIfExists(path);
-            
+
             instances.AddRange(newData);
             var jSonInstances = JsonConvert.SerializeObject(instances);
 
@@ -123,7 +164,7 @@ namespace Crate.Core.DataContext
             if (updated != null)
             {
                 updated.Object = data.Object;
-                
+
                 var jSonInstances = JsonConvert.SerializeObject(instances);
                 _fileProvider.Write(path, jSonInstances);
             }
@@ -146,6 +187,19 @@ namespace Crate.Core.DataContext
         private string FullPath(string repository, string obj)
         {
             return Path.Combine(_filePath, string.Format(@"{0}\{1}.{2}", repository, obj, Constants.FileExtension));
+        }
+
+        private string RepositoryPath(string repository)
+        {
+            return Path.Combine(_filePath, string.Format(@"{0}\{1}", _filePath, repository));
+        }
+
+        private List<Instance> GetInstances(string repository, string dataType)
+        {
+            var fullPath = FullPath(repository, dataType);
+            var jSon = _fileProvider.Read(fullPath);
+
+            return jSon == null ? new List<Instance>() : JsonConvert.DeserializeObject<List<Instance>>(jSon);
         }
         #endregion
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Crate.Core.Models;
 
@@ -36,11 +37,23 @@ namespace Crate.Core.Repositories
         void Update<T>(T t);
 
         /// <summary>
+        /// Updates the specified json.
+        /// </summary>
+        /// <param name="data"></param>
+        void UpdateFromDictionary(IReadOnlyDictionary<string, string> data);
+
+        /// <summary>
         /// Removes the specified t.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="t">The t.</param>
         void Remove<T>(T t);
+
+        /// <summary>
+        /// Removes the specified identifier.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        void Remove(Guid id);
 
         /// <summary>
         /// Undoes the pending changes.

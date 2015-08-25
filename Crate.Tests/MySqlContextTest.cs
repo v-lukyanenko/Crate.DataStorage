@@ -34,6 +34,78 @@ namespace Crate.Tests
             Assert.AreEqual(1, people.Count());
         }
 
+        public void SelectDataInKeyValueFormatTest()
+        {
+            const string connectionString = @"datasource=localhost;Database=crate;port=3306;username=root;password=root;";
+            var dc = new MySqlContext(connectionString);
+
+            var p = new Person
+            {
+                Name = "John Doe",
+                Age = 24,
+                Email = "john.doe@email.com"
+            };
+
+            var repository = new Repository("TestRep");
+
+            dc.Clear<Person>(repository);
+
+            repository.Add(p);
+            dc.SubmitChanges(repository);
+
+            var people = dc.Select(repository.Name, "Person").ToList();
+
+            Assert.AreEqual(4, people[0].Count());
+        }
+
+        [TestMethod]
+        public void GetAllRepositoriesTest()
+        {
+            const string connectionString = @"datasource=localhost;Database=crate;port=3306;username=root;password=root;";
+            var dc = new MySqlContext(connectionString);
+
+            var p = new Person
+            {
+                Name = "John Doe",
+                Age = 24,
+                Email = "john.doe@email.com"
+            };
+
+            var repository = new Repository("TestRep");
+            repository.Add(p);
+            dc.SubmitChanges(repository);
+
+            var repository1 = new Repository("TestRep1");
+            repository.Add(p);
+            dc.SubmitChanges(repository1);
+
+            var repositories = dc.GetRepositories();
+
+            Assert.AreNotEqual(0, repositories.Count());
+        }
+
+        [TestMethod]
+        public void GetAllObjectsOfCertainTypeFromRepositoryTest()
+        {
+            const string connectionString = @"datasource=localhost;Database=crate;port=3306;username=root;password=root;";
+            var dc = new MySqlContext(connectionString);
+
+            var p = new Person
+            {
+                Name = "John Doe",
+                Age = 24,
+                Email = "john.doe@email.com"
+            };
+
+            var repository = new Repository("TestRep");
+            repository.Add(p);
+            dc.SubmitChanges(repository);
+
+            var repositories = dc.GetObjects("TestRep");
+
+            Assert.AreNotEqual(0, repositories.Count());
+        }
+
         [TestMethod]
         public void RemoveEntryFromRepositoryTest()
         {

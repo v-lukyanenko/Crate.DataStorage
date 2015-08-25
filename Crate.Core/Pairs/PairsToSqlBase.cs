@@ -7,6 +7,10 @@ namespace Crate.Core.Pairs
 {
     public class PairsToSqlBase : IPair
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PairsToSqlBase"/> class.
+        /// </summary>
+        /// <param name="sqlDataAccess">The SQL data access.</param>
         public PairsToSqlBase(ISqlProvider sqlDataAccess)
         {
             _sqlDataAccess = sqlDataAccess;
@@ -72,7 +76,7 @@ namespace Crate.Core.Pairs
         public string Get(string key)
         {
             var parameters = AddParameters(key, null);
-            return _sqlDataAccess.Select(SelectQuery, parameters).FirstOrDefault();
+            return _sqlDataAccess.Select(SelectQuery, parameters, "Object").FirstOrDefault();
         }
 
         /// <summary>
@@ -96,6 +100,10 @@ namespace Crate.Core.Pairs
 
             return parameters;
         }
+        private const string KeySql = "@Key";
+        private const string ValueSql = "@Object";
+
+        private readonly ISqlProvider _sqlDataAccess;
 
         #region Queries
         private const string SelectQuery = "SELECT * FROM Pairs WHERE UniqueKey = @Key";
@@ -105,10 +113,5 @@ namespace Crate.Core.Pairs
         private const string ClearAllQuery = "Delete from Pairs";
         private const string IfExistsQuery = "SELECT * FROM Pairs WHERE UniqueKey = @Key";
         #endregion
-
-        private const string KeySql = "@Key";
-        private const string ValueSql = "@Object";
-
-        private readonly ISqlProvider _sqlDataAccess;
     }
 }

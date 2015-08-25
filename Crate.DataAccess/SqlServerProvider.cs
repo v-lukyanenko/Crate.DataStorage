@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 
@@ -19,13 +20,38 @@ namespace Crate.DataAccess
         }
 
         #region Public Methods
+
+        /// <summary>
+        /// Determines whether [is server connected].
+        /// </summary>
+        /// <returns></returns>
+        public bool CheckConnection()
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    const string query = "select 1";
+                    var command = new SqlCommand(query, connection);
+                    connection.Open();
+                    command.ExecuteScalar();
+
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         /// <summary>
         /// Selects the specified quert.
         /// </summary>
         /// <param name="query"></param>
         /// <param name="parameters">The parameters.</param>
         /// <returns></returns>
-        public IEnumerable<string> Select(string query, Dictionary<string, string> parameters)
+        public IEnumerable<string> Select(string query, Dictionary<string, string> parameters, string column)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -33,10 +59,11 @@ namespace Crate.DataAccess
                 {
                     AddParameters(cmd, parameters);
                     connection.Open();
+
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
-                            yield return reader["Object"].ToString();
+                            yield return reader[column].ToString();
                     }
                 }
             }
