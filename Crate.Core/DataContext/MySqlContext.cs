@@ -9,15 +9,11 @@ namespace Crate.Core.DataContext
         /// Initializes a new instance of the <see cref="MySqlContext"/> class.
         /// </summary>
         /// <param name="connectionString">The connection string.</param>
-        public MySqlContext(string connectionString)
+        /// <param name="crate"></param>
+        public MySqlContext(string connectionString, string crate)
             : base(new MySqlProvider(connectionString))
         {
-            Pairs = new PairsToMySql(connectionString);
+            Pairs = new PairsToMySql(connectionString, crate);
         }
-
-        /// <summary>
-        /// The pairs
-        /// </summary>
-        public IPair Pairs { get; private set; }
     }
 }

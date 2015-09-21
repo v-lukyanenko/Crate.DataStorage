@@ -12,8 +12,8 @@ namespace Crate.Tests
         [TestMethod]
         public void AddANewEntryToTheRepositoryTest()
         {
-            const string filePath = @"C:\Temp\TestCrate";
-            var dc = new FileContext(filePath);
+            const string filePath = @"C:\Temp\CrateStorage";
+            var dc = new FileContext(filePath, "Test");
 
             var p = new Person
             {
@@ -22,7 +22,7 @@ namespace Crate.Tests
                 Email = "john.doe@email.com"
             };
 
-            var repository = new Repository("TestRep");
+            var repository = new Repository("ConsoleApp");
 
             dc.Clear<Person>(repository);
 
@@ -37,8 +37,8 @@ namespace Crate.Tests
         [TestMethod]
         public void GetAllRepositoriesTest()
         {
-            const string connectionString = @"C:\Temp\TestCrate";
-            var dc = new FileContext(connectionString);
+            const string connectionString = @"C:\Temp\CrateStorage";
+            var dc = new FileContext(connectionString, "Test");
 
             var p = new Person
             {
@@ -47,11 +47,11 @@ namespace Crate.Tests
                 Email = "john.doe@email.com"
             };
 
-            var repository = new Repository("TestRep");
+            var repository = new Repository("ConsoleApp");
             repository.Add(p);
             dc.SubmitChanges(repository);
 
-            var repository1 = new Repository("TestRep1");
+            var repository1 = new Repository("Crate");
             repository.Add(p);
             dc.SubmitChanges(repository1);
 
@@ -63,8 +63,8 @@ namespace Crate.Tests
         [TestMethod]
         public void GetAllObjectsOfCertainTypeFromRepositoryTest()
         {
-            const string connectionString = @"C:\Temp\TestCrate";
-            var dc = new FileContext(connectionString);
+            const string connectionString = @"C:\Temp\CrateStorage";
+            var dc = new FileContext(connectionString, "Test");
 
             var p = new Person
             {
@@ -73,19 +73,19 @@ namespace Crate.Tests
                 Email = "john.doe@email.com"
             };
 
-            var repository = new Repository("TestRep");
+            var repository = new Repository("ConsoleApp");
             repository.Add(p);
             dc.SubmitChanges(repository);
 
-            var repositories = dc.GetObjects("TestRep");
+            var repositories = dc.GetObjects("ConsoleApp");
 
             Assert.AreNotEqual(0, repositories.Count());
         }
 
         public void SelectDataInKeyValueFormatTest()
         {
-            const string filePath = @"C:\Temp\TestCrate";
-            var dc = new FileContext(filePath);
+            const string filePath = @"C:\Temp\CrateStorage";
+            var dc = new FileContext(filePath, "Test");
 
             var p = new Person
             {
@@ -94,7 +94,7 @@ namespace Crate.Tests
                 Email = "john.doe@email.com"
             };
 
-            var repository = new Repository("TestRep");
+            var repository = new Repository("ConsoleApp");
 
             dc.Clear<Person>(repository);
 
@@ -109,8 +109,8 @@ namespace Crate.Tests
         [TestMethod]
         public void RemoveEntryFromRepositoryTest()
         {
-            const string filePath = @"C:\Temp\TestCrate";
-            var dc = new FileContext(filePath);
+            const string filePath = @"C:\Temp\CrateStorage";
+            var dc = new FileContext(filePath, "Test");
 
             var p = new Person
             {
@@ -119,7 +119,7 @@ namespace Crate.Tests
                 Email = "john.doe@email.com"
             };
 
-            var repository = new Repository("TestRep");
+            var repository = new Repository("ConsoleApp");
 
             dc.Clear<Person>(repository);
 
@@ -137,8 +137,8 @@ namespace Crate.Tests
         [TestMethod]
         public void UpdateEntryTest()
         {
-            const string filePath = @"C:\Temp\TestCrate";
-            var dc = new FileContext(filePath);
+            const string filePath = @"C:\Temp\CrateStorage";
+            var dc = new FileContext(filePath, "Test");
 
             var p = new Person
             {
@@ -147,7 +147,7 @@ namespace Crate.Tests
                 Email = "john.doe@email.com"
             };
 
-            var repository = new Repository("TestRep");
+            var repository = new Repository("ConsoleApp");
 
             dc.Clear<Person>(repository);
 
@@ -168,8 +168,8 @@ namespace Crate.Tests
         [TestMethod]
         public void ClearItemsOfCertainTypeFromRepositoryTest()
         {
-            const string filePath = @"C:\Temp\TestCrate";
-            var dc = new FileContext(filePath);
+            const string filePath = @"C:\Temp\CrateStorage";
+            var dc = new FileContext(filePath, "Test");
 
             var p = new Person
             {
@@ -178,7 +178,7 @@ namespace Crate.Tests
                 Email = "john.doe@email.com"
             };
 
-            var repository = new Repository("TestRep");
+            var repository = new Repository("ConsoleApp");
 
             repository.Add(p);
             dc.SubmitChanges(repository);
@@ -192,8 +192,8 @@ namespace Crate.Tests
         [TestMethod]
         public void AddNewPairTest()
         {
-            const string filePath = @"C:\Temp\TestCrate";
-            var dc = new FileContext(filePath);
+            const string filePath = @"C:\Temp\CrateStorage";
+            var dc = new FileContext(filePath, "Test");
 
             const string expectedValue = "Hello Pair!";
 
@@ -206,8 +206,8 @@ namespace Crate.Tests
         [TestMethod]
         public void RemovePairTest()
         {
-            const string filePath = @"C:\Temp\TestCrate";
-            var dc = new FileContext(filePath);
+            const string filePath = @"C:\Temp\CrateStorage";
+            var dc = new FileContext(filePath, "Test");
 
             const string expectedValue = "Hello Pair!";
 
@@ -224,8 +224,8 @@ namespace Crate.Tests
         [TestMethod]
         public void ClearAllPairTest()
         {
-            const string filePath = @"C:\Temp\TestCrate";
-            var dc = new FileContext(filePath);
+            const string filePath = @"C:\Temp\CrateStorage";
+            var dc = new FileContext(filePath, "Test");
 
             const string expectedValue = "Hello Pair!";
 

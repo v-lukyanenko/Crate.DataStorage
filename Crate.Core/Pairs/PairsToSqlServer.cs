@@ -11,8 +11,9 @@ namespace Crate.Core.Pairs
         /// Initializes a new instance of the <see cref="PairsToSqlServer"/> class.
         /// </summary>
         /// <param name="connectionString">The connection string.</param>
-        public PairsToSqlServer(string connectionString) :
-            base(new SqlServerProvider(connectionString))
+        /// <param name="crate"></param>
+        public PairsToSqlServer(string connectionString, string crate) :
+            base(new SqlServerProvider(connectionString), crate)
         {
         }
     }

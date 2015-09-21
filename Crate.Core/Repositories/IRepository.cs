@@ -30,6 +30,13 @@ namespace Crate.Core.Repositories
         void Add<T>(T t);
 
         /// <summary>
+        /// Adds from dictionary.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <param name="name"></param>
+        void AddFromDictionary(IReadOnlyDictionary<string, string> data, string name);
+
+        /// <summary>
         /// Updates the specified t.
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -40,7 +47,8 @@ namespace Crate.Core.Repositories
         /// Updates the specified json.
         /// </summary>
         /// <param name="data"></param>
-        void UpdateFromDictionary(IReadOnlyDictionary<string, string> data);
+        /// <param name="name"></param>
+        void UpdateFromDictionary(IReadOnlyDictionary<string, string> data, string name);
 
         /// <summary>
         /// Removes the specified t.

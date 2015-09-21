@@ -16,9 +16,6 @@ namespace Crate.ManagementStudio
             SourceTypesInit();
 
             AuthenticationTypesInit();
-
-            ServerNameTbx.Text = @"VLADIMIR5D4B\SQLSERVER";
-            InitialCatalogTbx.Text = "crate";
         }
 
         private void Cancel_Click(object sender, EventArgs e)
@@ -91,7 +88,6 @@ namespace Crate.ManagementStudio
                     FilePnl.Hide();
                     break;
             }
-
         }
 
         private void ConnectBtn_Click(object sender, EventArgs e)
@@ -124,7 +120,7 @@ namespace Crate.ManagementStudio
             CurrentConnection = new Connection
             {
                 SourceType = (SourceType)sourceType,
-                Options = FilePathTbx.Text
+                ConnectionString = FilePathTbx.Text
             };
         }
 
@@ -135,14 +131,10 @@ namespace Crate.ManagementStudio
             var connectionString = string.Format(@"Data Source={0};Initial Catalog={1};Integrated Security={2};",
                 ServerNameTbx.Text, InitialCatalogTbx.Text, integratedSecurity);
 
-            if (SqlServerContext.CheckConnection(connectionString))
-            {
-            }
-
             CurrentConnection = new Connection
             {
                 SourceType = (SourceType)sourceType,
-                Options = connectionString
+                ConnectionString = connectionString
             };
         }
 
@@ -158,7 +150,7 @@ namespace Crate.ManagementStudio
             CurrentConnection = new Connection
             {
                 SourceType = (SourceType)sourceType,
-                Options = connectionString
+                ConnectionString = connectionString
             };
         }
 

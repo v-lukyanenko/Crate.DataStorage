@@ -1,9 +1,9 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿
+using System.Collections.Generic;
 
 namespace Crate.Core.Models
 {
-    public class Instance
+    public class InstanceType
     {
         /// <summary>
         /// Gets or sets the identifier.
@@ -11,8 +11,7 @@ namespace Crate.Core.Models
         /// <value>
         /// The identifier.
         /// </value>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public Guid? Id { get; set; }
+        public int Id { get; set; }
 
         /// <summary>
         /// Gets or sets the name.
@@ -23,28 +22,19 @@ namespace Crate.Core.Models
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the object.
-        /// </summary>
-        /// <value>
-        /// The object.
-        /// </value>
-        public string Object { get; set; }
-
-        /// <summary>
         /// Gets or sets the properties.
         /// </summary>
         /// <value>
         /// The properties.
         /// </value>
-        public string Repository { get; set; }
+        public Dictionary<string, string> Properties { get; set; }
 
         /// <summary>
-        /// Gets or sets the type.
+        /// Gets or sets the repository identifier.
         /// </summary>
         /// <value>
-        /// The type.
+        /// The repository identifier.
         /// </value>
-        [JsonIgnore]
-        public OperationType Type { get; set; }
+        public int RepositoryId { get; set; }
     }
 }

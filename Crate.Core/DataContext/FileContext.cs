@@ -16,11 +16,12 @@ namespace Crate.Core.DataContext
         /// Initializes a new instance of the <see cref="FileContext"/> class.
         /// </summary>
         /// <param name="filePath">The file path.</param>
-        public FileContext(string filePath)
+        /// <param name="crate"></param>
+        public FileContext(string filePath, string crate)
         {
             _filePath = filePath;
             _fileProvider = new FileProvider();
-            Pairs = new PairsToFile(filePath);
+            Pairs = new PairsToFile(filePath, crate);
         }
 
         /// <summary>
@@ -36,7 +37,7 @@ namespace Crate.Core.DataContext
         /// <summary>
         /// The pairs
         /// </summary>
-        public IPair Pairs { get; private set; }
+        public IPair Pairs { get; set; }
 
         #region Public Methods
         /// <summary>
@@ -66,7 +67,7 @@ namespace Crate.Core.DataContext
         /// Submits the changes.
         /// </summary>
         /// <param name="repository">The repository.</param>
-        public void SubmitChanges(IRepository repository)
+        public bool SubmitChanges(IRepository repository)
         {
             var names = repository.Data.DistinctBy(c => c.Name);
 
@@ -74,6 +75,8 @@ namespace Crate.Core.DataContext
                 SubmitChanges(repository, data);
 
             repository.Data.Clear();
+
+            return true;
         }
 
         /// <summary>
@@ -100,9 +103,12 @@ namespace Crate.Core.DataContext
         /// Gets all repositories.
         /// </summary>
         /// <returns></returns>
-        public List<string> GetRepositories()
+        public IEnumerable<string> GetRepositories()
         {
-            return Directory.GetDirectories(_filePath).Select(Path.GetFileName).ToList();
+            var fullRepPath = _filePath + RepositoriesPath;
+
+            return JsonConvert.DeserializeObject<Dictionary<int, string>>(
+                        _fileProvider.Read(fullRepPath)).Select(c => c.Value);
         }
 
         /// <summary>
@@ -112,12 +118,120 @@ namespace Crate.Core.DataContext
         /// <returns></returns>
         public List<string> GetObjects(string repository)
         {
-            var repositoryPath = RepositoryPath(repository);
+            var fullRepPath = _filePath + InstanceTypesPath;
 
-            var dirInfo = new DirectoryInfo(repositoryPath);
-            var objects = dirInfo.GetFiles("*.txt");
+            var perositoryId = GetRepositoryId(repository);
 
-            return objects.Select(c => Path.GetFileNameWithoutExtension(c.Name)).ToList();
+            return JsonConvert.DeserializeObject<List<InstanceType>>(
+                        _fileProvider.Read(fullRepPath)).Where(c => c.RepositoryId == perositoryId).Select(c => c.Name).ToList();
+        }
+
+        /// <summary>
+        /// Creates the repository.
+        /// </summary>
+        /// <param name="repository">The repository.</param>
+        public void CreateRepository(string repository)
+        {
+            _fileProvider.CreateDirectory(_filePath + @"\" + repository);
+
+            var fullRepPath = _filePath + RepositoriesPath;
+
+            var maxId = 0;
+            var repositories = new Dictionary<int, string>();
+
+            if (File.Exists(fullRepPath))
+            {
+                repositories =
+                    JsonConvert.DeserializeObject<Dictionary<int, string>>(
+                        _fileProvider.Read(fullRepPath));
+
+                maxId = repositories.Keys.Max();
+            }
+
+            if (!repositories.ContainsValue(repository))
+            {
+                repositories.Add(++maxId, repository);
+                _fileProvider.Write(fullRepPath, JsonConvert.SerializeObject(repositories));
+            }
+        }
+
+        /// <summary>
+        /// Creates the instance.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="hardSaving"></param>
+        /// <param name="repository"></param>
+        public void CreateInstance<T>(bool hardSaving, string repository)
+        {
+            var name = typeof(T).Name;
+
+            var maxId = 0;
+            var instanceTypes = new List<InstanceType>();
+
+            var fullRepPath = _filePath + InstanceTypesPath;
+
+            if (File.Exists(fullRepPath))
+            {
+                instanceTypes =
+                    JsonConvert.DeserializeObject<List<InstanceType>>(
+                        _fileProvider.Read(fullRepPath));
+
+                maxId = instanceTypes.Max(c => c.Id);
+            }
+
+            var repositoryId = GetRepositoryId(repository);
+
+            if (!instanceTypes.Any(c => c.Name == name && c.RepositoryId == repositoryId))
+            {
+                var typeProperties = typeof(T).GetProperties();
+                var properties = typeProperties.ToDictionary(x => x.Name, x => x.PropertyType.Name);
+
+                instanceTypes.Add(new InstanceType()
+                {
+                    Id = ++maxId,
+                    Name = name,
+                    Properties = properties,
+                    RepositoryId = repositoryId
+                });
+
+                _fileProvider.Write(_filePath + InstanceTypesPath, JsonConvert.SerializeObject(instanceTypes));
+            }
+        }
+
+        /// <summary>
+        /// Checks the data types.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <param name="objectName">Name of the object.</param>
+        /// <param name="repository"></param>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public bool CheckDataTypes(Dictionary<string, string> data, string objectName, string repository)
+        {
+            var properties = GetObjectStructure(objectName, repository);
+            properties.Remove("Id");
+            
+            return properties.Select(p => Tools.CheckProperyType(data, p)).All(result => result);
+        }
+
+        /// <summary>
+        /// Gets the object structure.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="repository"></param>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public Dictionary<string, string> GetObjectStructure(string name, string repository)
+        {
+            var fullRepPath = _filePath + InstanceTypesPath;
+
+            var perositoryId = GetRepositoryId(repository);
+
+            var firstOrDefault = JsonConvert.DeserializeObject<List<InstanceType>>(
+                _fileProvider.Read(fullRepPath)).FirstOrDefault(c => c.RepositoryId == perositoryId);
+
+            return firstOrDefault != null ?
+                firstOrDefault.Properties : new Dictionary<string, string>();
         }
 
         #endregion
@@ -126,10 +240,6 @@ namespace Crate.Core.DataContext
         private void SubmitChanges(IRepository repository, Instance data)
         {
             var fullPath = FullPath(repository.Name, data.Name);
-            var directory = Path.GetDirectoryName(fullPath);
-
-            if (directory != null)
-                Directory.CreateDirectory(directory);
 
             switch (data.Type)
             {
@@ -189,11 +299,6 @@ namespace Crate.Core.DataContext
             return Path.Combine(_filePath, string.Format(@"{0}\{1}.{2}", repository, obj, Constants.FileExtension));
         }
 
-        private string RepositoryPath(string repository)
-        {
-            return Path.Combine(_filePath, string.Format(@"{0}\{1}", _filePath, repository));
-        }
-
         private List<Instance> GetInstances(string repository, string dataType)
         {
             var fullPath = FullPath(repository, dataType);
@@ -201,9 +306,27 @@ namespace Crate.Core.DataContext
 
             return jSon == null ? new List<Instance>() : JsonConvert.DeserializeObject<List<Instance>>(jSon);
         }
+
+        private int GetRepositoryId(string name)
+        {
+            var fullRepPath = _filePath + RepositoriesPath;
+
+            if (File.Exists(fullRepPath))
+            {
+                var repositories =
+                    JsonConvert.DeserializeObject<Dictionary<int, string>>(
+                        _fileProvider.Read(fullRepPath));
+
+                return repositories.SingleOrDefault(c => c.Value == name).Key;
+            }
+            return 0;
+        }
         #endregion
 
         private readonly string _filePath;
         private readonly FileProvider _fileProvider;
+
+        private const string InstanceTypesPath = @"\_system\_instanceTypes.txt";
+        private const string RepositoriesPath = @"\_system\_repositories.txt";
     }
 }

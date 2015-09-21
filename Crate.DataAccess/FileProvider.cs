@@ -47,5 +47,14 @@ namespace Crate.DataAccess
         {
             Directory.Delete(path, true);
         }
+
+        /// <summary>
+        /// Creates the directory.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        public void CreateDirectory(string path)
+        {
+            Directory.CreateDirectory(path);
+        }
     }
 }

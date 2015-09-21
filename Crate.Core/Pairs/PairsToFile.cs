@@ -16,10 +16,11 @@ namespace Crate.Core.Pairs
         /// <summary>
         /// Initializes a new instance of the <see cref="PairsToFile"/> class.
         /// </summary>
-        public PairsToFile(string path)
+        public PairsToFile(string path, string crate)
         {
             _fileProvider = new FileProvider();
             _path = path;
+            _crate = crate;
         }
 
         #region Public Methods
@@ -29,14 +30,13 @@ namespace Crate.Core.Pairs
         /// <typeparam name="T"></typeparam>
         /// <param name="key">The key.</param>
         /// <param name="value">The value.</param>
-        public void Add<T>(string key, T value)
+        public void Add(string key, string value)
         {
             var instances = FileHelpers.ReadOldDataIfExists(FullPath).Where(c => c.Name == key);
-
-            if(instances.Any())
+            if (instances.Any())
                 return;
 
-            SerializeAndSubmit(key, value, OperationType.Saving);
+            SubmitInstance(key, OperationType.Saving, value);
         }
 
         /// <summary>
@@ -45,9 +45,9 @@ namespace Crate.Core.Pairs
         /// <typeparam name="T"></typeparam>
         /// <param name="key">The key.</param>
         /// <param name="value">The value.</param>
-        public void Update<T>(string key, T value)
+        public void Update(string key, string value)
         {
-            SerializeAndSubmit(key, value, OperationType.Updating);
+            SubmitInstance(key, OperationType.Updating, value);
         }
 
         /// <summary>
@@ -60,15 +60,14 @@ namespace Crate.Core.Pairs
         }
 
         /// <summary>
-        /// Gets the specified key.
+        /// Ifs the exists.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="key">The key.</param>
         /// <returns></returns>
-        public T Get<T>(string key) where T : new()
+        /// <exception cref="System.NotImplementedException"></exception>
+        public bool IfExists(string key)
         {
-            var instance = FileHelpers.ReadOldDataIfExists(FullPath).SingleOrDefault(c => c.Name == key);
-            return instance == null ? new T() : JsonConvert.DeserializeObject<T>(instance.Object);
+            return FileHelpers.ReadOldDataIfExists(FullPath).Any(c => c.Name == key);
         }
 
         /// <summary>
@@ -81,6 +80,34 @@ namespace Crate.Core.Pairs
         {
             var instance = FileHelpers.ReadOldDataIfExists(FullPath).SingleOrDefault(c => c.Name == key);
             return instance == null ? string.Empty : instance.Object;
+        }
+
+        /// <summary>
+        /// Gets all.
+        /// </summary>
+        /// <returns></returns>
+        public Dictionary<string, string> GetAll()
+        {
+            return FileHelpers.ReadOldDataIfExists(FullPath).ToDictionary(c=>c.Name, c=>c.Object);
+        }
+
+        /// <summary>
+        /// Gets the crates.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<string> GetCrates()
+        {
+            return FileHelpers.ReadOldDataIfExists(FullPath).GroupBy(c=>c.Repository).Select(c=>c.Key);
+        }
+
+        /// <summary>
+        /// Gets all from crate.
+        /// </summary>
+        /// <param name="crate">The crate.</param>
+        /// <returns></returns>
+        public Dictionary<string, string> GetAllFromCrate(string crate)
+        {
+            return FileHelpers.ReadOldDataIfExists(FullPath).Where(c=>c.Repository == crate).ToDictionary(c => c.Name, c => c.Object);
         }
 
         /// <summary>
@@ -100,16 +127,11 @@ namespace Crate.Core.Pairs
                 Id = null,
                 Name = key,
                 Object = obj,
-                Type = type
+                Type = type,
+                Repository = _crate
             };
 
             SubmitChanges(key, instance);
-        }
-
-        private void SerializeAndSubmit<T>(string key, T value, OperationType type)
-        {
-            var serialized = JsonConvert.SerializeObject(value);
-            SubmitInstance(key, type, serialized);
         }
 
         private void SubmitChanges(string name, Instance data)
@@ -176,5 +198,6 @@ namespace Crate.Core.Pairs
 
         private readonly FileProvider _fileProvider;
         private readonly string _path;
+        private readonly string _crate;
     }
 }

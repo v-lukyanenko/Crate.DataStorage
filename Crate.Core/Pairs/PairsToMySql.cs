@@ -9,8 +9,9 @@ namespace Crate.Core.Pairs
         /// Initializes a new instance of the <see cref="PairsToMySql"/> class.
         /// </summary>
         /// <param name="connectionString">The connection string.</param>
-        public PairsToMySql(string connectionString) :
-            base(new MySqlProvider(connectionString))
+        /// <param name="crate"></param>
+        public PairsToMySql(string connectionString, string crate) :
+            base(new MySqlProvider(connectionString), crate)
         {
         }
     }

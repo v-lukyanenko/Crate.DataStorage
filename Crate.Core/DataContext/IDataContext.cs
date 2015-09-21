@@ -7,15 +7,12 @@ namespace Crate.Core.DataContext
     public interface IDataContext
     {
         /// <summary>
-        /// The pairs
+        /// Gets or sets the pairs.
         /// </summary>
-        IPair Pairs { get; }
-
-        /// <summary>
-        /// Checks the connection.
-        /// </summary>
-        /// <returns></returns>
-        bool CheckConnection();
+        /// <value>
+        /// The pairs.
+        /// </value>
+        IPair Pairs { get; set; }
 
         /// <summary>
         /// Selects the specified repository.
@@ -37,7 +34,7 @@ namespace Crate.Core.DataContext
         /// Submits the changes.
         /// </summary>
         /// <param name="repository">The repository.</param>
-        void SubmitChanges(IRepository repository);
+        bool SubmitChanges(IRepository repository);
 
         /// <summary>
         /// Clears the specified repository.
@@ -55,7 +52,7 @@ namespace Crate.Core.DataContext
         /// Gets all repositories.
         /// </summary>
         /// <returns></returns>
-        List<string> GetRepositories();
+        IEnumerable<string> GetRepositories();
 
         /// <summary>
         /// Gets the objects.
@@ -63,5 +60,33 @@ namespace Crate.Core.DataContext
         /// <param name="repository">The repository.</param>
         /// <returns></returns>
         List<string> GetObjects(string repository);
+
+        /// <summary>
+        /// Creates the instance.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        void CreateInstance<T>(bool hardSaving, string repository);
+
+        /// <summary>
+        /// Creates the repository.
+        /// </summary>
+        /// <param name="repository">The repository.</param>
+        void CreateRepository(string repository);
+
+        /// <summary>
+        /// Checks the data types.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <param name="objectName">Name of the object.</param>
+        /// <returns></returns>
+        bool CheckDataTypes(Dictionary<string, string> data, string objectName, string repository);
+
+        /// <summary>
+        /// Gets the object structure.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="repository"></param>
+        /// <returns></returns>
+        Dictionary<string, string> GetObjectStructure(string name, string repository);
     }
 }

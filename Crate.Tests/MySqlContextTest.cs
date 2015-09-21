@@ -13,7 +13,7 @@ namespace Crate.Tests
         public void AddANewEntryToTheRepositoryTest()
         {
             const string connectionString = @"datasource=localhost;Database=crate;port=3306;username=root;password=root;";
-            var dc = new MySqlContext(connectionString);
+            var dc = new MySqlContext(connectionString, "");
 
             var p = new Person
             {
@@ -22,7 +22,7 @@ namespace Crate.Tests
                 Email = "john.doe@email.com"
             };
 
-            var repository = new Repository("TestRep");
+            var repository = new Repository("ConsoleApp");
 
             dc.Clear<Person>(repository);
 
@@ -37,7 +37,7 @@ namespace Crate.Tests
         public void SelectDataInKeyValueFormatTest()
         {
             const string connectionString = @"datasource=localhost;Database=crate;port=3306;username=root;password=root;";
-            var dc = new MySqlContext(connectionString);
+            var dc = new MySqlContext(connectionString, "");
 
             var p = new Person
             {
@@ -46,7 +46,7 @@ namespace Crate.Tests
                 Email = "john.doe@email.com"
             };
 
-            var repository = new Repository("TestRep");
+            var repository = new Repository("ConsoleApp");
 
             dc.Clear<Person>(repository);
 
@@ -62,7 +62,7 @@ namespace Crate.Tests
         public void GetAllRepositoriesTest()
         {
             const string connectionString = @"datasource=localhost;Database=crate;port=3306;username=root;password=root;";
-            var dc = new MySqlContext(connectionString);
+            var dc = new MySqlContext(connectionString, "");
 
             var p = new Person
             {
@@ -71,11 +71,11 @@ namespace Crate.Tests
                 Email = "john.doe@email.com"
             };
 
-            var repository = new Repository("TestRep");
+            var repository = new Repository("ConsoleApp");
             repository.Add(p);
             dc.SubmitChanges(repository);
 
-            var repository1 = new Repository("TestRep1");
+            var repository1 = new Repository("ConsoleApp");
             repository.Add(p);
             dc.SubmitChanges(repository1);
 
@@ -88,7 +88,7 @@ namespace Crate.Tests
         public void GetAllObjectsOfCertainTypeFromRepositoryTest()
         {
             const string connectionString = @"datasource=localhost;Database=crate;port=3306;username=root;password=root;";
-            var dc = new MySqlContext(connectionString);
+            var dc = new MySqlContext(connectionString, "");
 
             var p = new Person
             {
@@ -97,11 +97,11 @@ namespace Crate.Tests
                 Email = "john.doe@email.com"
             };
 
-            var repository = new Repository("TestRep");
+            var repository = new Repository("ConsoleApp");
             repository.Add(p);
             dc.SubmitChanges(repository);
 
-            var repositories = dc.GetObjects("TestRep");
+            var repositories = dc.GetObjects("ConsoleApp");
 
             Assert.AreNotEqual(0, repositories.Count());
         }
@@ -110,7 +110,7 @@ namespace Crate.Tests
         public void RemoveEntryFromRepositoryTest()
         {
             const string connectionString = @"datasource=localhost;Database=crate;port=3306;username=root;password=root;";
-            var dc = new MySqlContext(connectionString);
+            var dc = new MySqlContext(connectionString, "");
 
             var p = new Person
             {
@@ -119,7 +119,7 @@ namespace Crate.Tests
                 Email = "john.doe@email.com"
             };
 
-            var repository = new Repository("TestRep");
+            var repository = new Repository("ConsoleApp");
 
             dc.Clear<Person>(repository);
 
@@ -138,7 +138,7 @@ namespace Crate.Tests
         public void UpdateEntryTest()
         {
             const string connectionString = @"datasource=localhost;Database=crate;port=3306;username=root;password=root;";
-            var dc = new MySqlContext(connectionString);
+            var dc = new MySqlContext(connectionString, "");
 
             var p = new Person
             {
@@ -147,7 +147,7 @@ namespace Crate.Tests
                 Email = "john.doe@email.com"
             };
 
-            var repository = new Repository("TestRep");
+            var repository = new Repository("ConsoleApp");
 
             dc.Clear<Person>(repository);
 
@@ -169,7 +169,7 @@ namespace Crate.Tests
         public void ClearItemsOfCertainTypeFromRepositoryTest()
         {
             const string connectionString = @"datasource=localhost;Database=crate;port=3306;username=root;password=root;";
-            var dc = new MySqlContext(connectionString);
+            var dc = new MySqlContext(connectionString, "");
 
             var p = new Person
             {
@@ -178,7 +178,7 @@ namespace Crate.Tests
                 Email = "john.doe@email.com"
             };
 
-            var repository = new Repository("TestRep");
+            var repository = new Repository("ConsoleApp");
 
             repository.Add(p);
             dc.SubmitChanges(repository);
@@ -187,56 +187,6 @@ namespace Crate.Tests
 
             var people = dc.Select<Person>(repository);
             Assert.AreEqual(0, people.Count());
-        }
-
-        [TestMethod]
-        public void AddNewPairTest()
-        {
-            const string connectionString = @"datasource=localhost;Database=crate;port=3306;username=root;password=root;";
-            var dc = new MySqlContext(connectionString);
-
-            const string expectedValue = "Hello Pair!";
-
-            dc.Pairs.Add("TestKey", expectedValue);
-
-            var actual = dc.Pairs.Get("TestKey");
-            Assert.AreEqual(true, actual.Contains(expectedValue));
-        }
-
-        [TestMethod]
-        public void RemovePairTest()
-        {
-            const string connectionString = @"datasource=localhost;Database=crate;port=3306;username=root;password=root;";
-            var dc = new MySqlContext(connectionString);
-
-            const string expectedValue = "Hello Pair!";
-
-            const string pairName = "TestKey";
-
-            dc.Pairs.Add(pairName, expectedValue);
-
-            dc.Pairs.Remove(pairName);
-
-            var actual = dc.Pairs.Get(pairName);
-            Assert.AreEqual(null, actual);
-        }
-
-        [TestMethod]
-        public void ClearAllPairTest()
-        {
-            const string connectionString = @"datasource=localhost;Database=crate;port=3306;username=root;password=root;";
-            var dc = new MySqlContext(connectionString);
-
-            const string expectedValue = "Hello Pair!";
-
-            const string pairName = "TestKey";
-
-            dc.Pairs.Add(pairName, expectedValue);
-
-            dc.Pairs.ClearAll();
-
-            var actual = dc.Pairs.Get(pairName);
-            Assert.AreEqual(null, actual);
         }
     }
 }

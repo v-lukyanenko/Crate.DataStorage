@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Crate.Core.Models;
+using Crate.Core.Pairs;
 using Crate.Core.Repositories;
 using Crate.DataAccess;
 using Newtonsoft.Json;
@@ -9,6 +10,14 @@ namespace Crate.Core.DataContext
 {
     public class SqlDataContextBase
     {
+        /// <summary>
+        /// Gets or sets the pairs.
+        /// </summary>
+        /// <value>
+        /// The pairs.
+        /// </value>
+        public IPair Pairs { get; set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SqlDataContextBase"/> class.
         /// </summary>
@@ -19,11 +28,6 @@ namespace Crate.Core.DataContext
         }
 
         #region Public Methods
-
-        public bool CheckConnection()
-        {
-            return _sqlDataAccess.CheckConnection();
-        }
 
         /// <summary>
         /// Selects the specified repository.
@@ -53,14 +57,35 @@ namespace Crate.Core.DataContext
         /// Submits the changes.
         /// </summary>
         /// <param name="repository">The repository.</param>
-        public void SubmitChanges(IRepository repository)
+        public bool SubmitChanges(IRepository repository)
         {
             var names = repository.Data.ToList();
+            var repositoryId = GetRepositoryId(repository.Name);
+
+            if (repositoryId == null)
+                return false;
 
             foreach (var data in names)
-                SubmitChanges(repository, data);
+                SubmitChanges(repository, data, repositoryId);
 
             repository.Data.Clear();
+
+            return true;
+        }
+
+        /// <summary>
+        /// Checks the data types.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <param name="objectName">Name of the object.</param>
+        /// <param name="repository"></param>
+        /// <returns></returns>
+        public bool CheckDataTypes(Dictionary<string, string> data, string objectName, string repository)
+        {
+            var properties = GetObjectStructure(objectName, repository);
+            properties.Remove("Id");
+
+            return properties.Select(p => Tools.CheckProperyType(data, p)).All(result => result);
         }
 
         /// <summary>
@@ -70,12 +95,17 @@ namespace Crate.Core.DataContext
         /// <param name="repository">The repository.</param>
         public void Clear<T>(IRepository repository)
         {
+            var id = GetRepositoryId(repository.Name);
+
+            if (id == null)
+                return;
+
             var parameters = new Dictionary<string, string>
             {
-                {RepositorySql, repository.Name}
+                {RepositoryIdSql, id}
             };
 
-            _sqlDataAccess.RunQuery(ClearQuery, parameters);
+            _sqlDataAccess.RunQuery(Queries.ClearInstances, parameters);
         }
 
         /// <summary>
@@ -83,17 +113,16 @@ namespace Crate.Core.DataContext
         /// </summary>
         public void ClearAll()
         {
-            _sqlDataAccess.RunQuery(ClearAllQuery, null);
+            _sqlDataAccess.RunQuery(Queries.ClearAllInstances, null);
         }
 
         /// <summary>
         /// Gets all repositories.
         /// </summary>
         /// <returns></returns>
-        public List<string> GetRepositories()
+        public IEnumerable<string> GetRepositories()
         {
-            var repositories = _sqlDataAccess.Select(GetRepositoriesQuery, null, "Repository");
-            return repositories == null ? null : repositories.ToList();
+            return _sqlDataAccess.Select(Queries.GetRepositories, null, "Name");
         }
 
         /// <summary>
@@ -102,96 +131,224 @@ namespace Crate.Core.DataContext
         /// <returns></returns>
         public List<string> GetObjects(string repository)
         {
+            var repositoryId = GetRepositoryId(repository);
             var parameters = new Dictionary<string, string>
             {
-                {RepositorySql, repository}
+                {RepositoryIdSql, repositoryId}
             };
-            return _sqlDataAccess.Select(GetObjectsQuery, parameters, "Name").ToList();
+            return _sqlDataAccess.Select(Queries.GetObjects, parameters, "Name").ToList();
+        }
+
+        public Dictionary<string, string> GetObjectStructure(string name, string repository)
+        {
+            var repositoryId = GetRepositoryId(repository);
+
+            var parameters = new Dictionary<string, string>
+            {
+                {ObjectNameSql, name},
+                {RepositoryIdSql, repositoryId}
+            };
+
+            var queryResult = _sqlDataAccess.Select(Queries.SelectProperties, parameters, "Properties").SingleOrDefault();
+            return JsonConvert.DeserializeObject<Dictionary<string, string>>(queryResult);
+        }
+
+        /// <summary>
+        /// Creates the instance.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public void CreateInstance<T>(bool hardSaving, string repository)
+        {
+            var name = typeof(T).Name;
+
+            var typeProperties = typeof(T).GetProperties();
+            var properties = typeProperties.ToDictionary(x => x.Name, x => x.PropertyType.Name);
+
+            var repositoryId = GetRepositoryId(repository);
+
+            if (IsInstanceExists(name, repositoryId))
+            {
+                if (hardSaving)
+                    UpdateInstance(name, repositoryId, properties);
+            }
+            else
+                SaveInstance(name, repositoryId, properties);
+        }
+
+        /// <summary>
+        /// Creates the repository.
+        /// </summary>
+        /// <param name="repository">The repository.</param>
+        public void CreateRepository(string repository)
+        {
+            var isExists = IsRepositoryExists(repository);
+
+            if (!isExists)
+                AddRepository(repository);
         }
 
         #endregion Public Methods
 
         #region Private Methods
-        private void SubmitChanges(IRepository repository, Instance data)
+        private void SubmitChanges(IRepository repository, Instance data, string repositoryId)
         {
             switch (data.Type)
             {
                 case OperationType.Saving:
-                    Add(repository, data);
+                    Add(repository, data, repositoryId);
                     break;
                 case OperationType.Updating:
-                    Update(repository, data);
+                    Update(repository, data, repositoryId);
                     break;
                 case OperationType.Removing:
-                    Remove(repository, data);
+                    Remove(repository, data, repositoryId);
                     break;
             }
         }
 
-        private void Add(IRepository repository, Instance data)
+        private void Add(IRepository repository, Instance data, string repositoryId)
         {
+            var objectId = GetInstanceTypeId(data.Name, repositoryId);
+
             var parameters = new Dictionary<string, string>
             {
                 {GuidIdSql, data.Id.ToString()},
                 {NameSql, data.Name},
+                {ObjectIdSql, objectId},
                 {ObjectSql, data.Object},
-                {RepositorySql, repository.Name}
+                {RepositoryIdSql, repositoryId}
             };
 
-            _sqlDataAccess.RunQuery(InsertQuery, parameters);
+            _sqlDataAccess.RunQuery(Queries.InsertToInstance, parameters);
         }
 
-        private void Update(IRepository repository, Instance data)
+        private void Update(IRepository repository, Instance data, string repositoryId)
         {
             var parameters = new Dictionary<string, string>
             {
                 {GuidIdSql, data.Id.ToString()},
                 {ObjectSql, data.Object},
-                {RepositorySql, repository.Name}
+                {RepositoryIdSql, repositoryId}
             };
 
-            _sqlDataAccess.RunQuery(UpdateQuery, parameters);
+            _sqlDataAccess.RunQuery(Queries.UpdateInstance, parameters);
         }
 
-        private void Remove(IRepository repository, Instance data)
+        private void Remove(IRepository repository, Instance data, string repositoryId)
         {
             var parameters = new Dictionary<string, string>
             {
                 {GuidIdSql, data.Id.ToString()},
-                {RepositorySql, repository.Name}
+                {RepositoryIdSql, repositoryId}
             };
 
-            _sqlDataAccess.RunQuery(DeleteQuery, parameters);
+            _sqlDataAccess.RunQuery(Queries.DeleteInstance, parameters);
         }
 
         private IEnumerable<string> GetData(string repository, string dataType)
         {
+            var repositoryId = GetRepositoryId(repository);
+
+            var objectId = GetInstanceTypeId(dataType, repositoryId);
+
             var parameters = new Dictionary<string, string>
             {
-                {NameSql, dataType},
-                {RepositorySql, repository}
+                {ObjectIdSql, objectId},
+                {RepositoryIdSql, repositoryId}
             };
 
-            return _sqlDataAccess.Select(SelectQuery, parameters, "Object");
+            return _sqlDataAccess.Select(Queries.SelectInstances, parameters, "ObjectData");
         }
-        #endregion
 
-        #region Queries
-        private const string SelectQuery = "SELECT * FROM instance WHERE Name = @Name and Repository = @Repository";
-        private const string InsertQuery = "INSERT INTO instance (GuidID, Name, Object, Repository) " +
-                                             "VALUES (@GuidID, @Name, @Object, @Repository)";
-        private const string UpdateQuery = "UPDATE Instance SET Object = @Object WHERE GuidID = @GuidID AND Repository = @Repository";
-        private const string DeleteQuery = "Delete from Instance WHERE GuidID = @GuidID AND Repository = @Repository";
-        private const string ClearQuery = "Delete from Instance WHERE Repository = @Repository";
-        private const string ClearAllQuery = "Delete from Instance";
-        private const string GetRepositoriesQuery = "SELECT Repository FROM Instance Group By Repository";
-        private const string GetObjectsQuery = "SELECT Name FROM Instance Where Repository = @Repository Group By Name";
+        private bool IsInstanceExists(string name, string repositoryId)
+        {
+            var parameters = new Dictionary<string, string>
+            {
+                {RepositoryIdSql, repositoryId},
+                {NameSql, name}
+            };
+
+            return _sqlDataAccess.Select(Queries.IsInstanceExists, parameters, Id).Any();
+        }
+
+        private bool IsRepositoryExists(string name)
+        {
+            var parameters = new Dictionary<string, string>
+            {
+                {NameSql, name}
+            };
+
+            return _sqlDataAccess.Select(Queries.IsRepositoryExists, parameters, Id).Any();
+        }
+
+        private void AddRepository(string name)
+        {
+            var parameters = new Dictionary<string, string>
+            {
+                {NameSql, name}
+            };
+
+            _sqlDataAccess.RunQuery(Queries.InsertNewRepository, parameters);
+        }
+
+        private string GetRepositoryId(string name)
+        {
+            var parameters = new Dictionary<string, string>
+            {
+                {NameSql, name}
+            };
+
+            return _sqlDataAccess.Select(Queries.SelectRepositoryId, parameters, Id).SingleOrDefault();
+        }
+
+        private void SaveInstance(string name, string repositoryId, Dictionary<string, string> properties)
+        {
+            var parameters = new Dictionary<string, string>
+            {
+                {NameSql, name},
+                {PropertiesSql, JsonConvert.SerializeObject(properties)},
+                {RepositoryIdSql, repositoryId}
+
+            };
+
+            _sqlDataAccess.RunQuery(Queries.InsertNewInstance, parameters);
+        }
+
+        private void UpdateInstance(string name, string repositoryId, Dictionary<string, string> properties)
+        {
+            var parameters = new Dictionary<string, string>
+            {
+                {NameSql, name},
+                {RepositorySql, repositoryId},
+                {PropertiesSql, JsonConvert.SerializeObject(properties)}
+            };
+
+            _sqlDataAccess.RunQuery(Queries.UpdateInstanceType, parameters);
+        }
+
+        private string GetInstanceTypeId(string objectName, string repositoryId)
+        {
+            var objIdParams = new Dictionary<string, string>
+            {
+                {NameSql, objectName},
+                {RepositoryIdSql, repositoryId}
+            };
+
+            return _sqlDataAccess.Select(Queries.SelectInstTypeId, objIdParams, "Id").SingleOrDefault();
+        }
+
+        //***************************************
         #endregion
 
         private const string NameSql = "@Name";
         private const string GuidIdSql = "@GuidID";
         private const string ObjectSql = "@Object";
         private const string RepositorySql = "@Repository";
+        private const string PropertiesSql = "@Properties";
+        private const string ObjectIdSql = "@ObjectId";
+        private const string ObjectNameSql = "@ObjectName";
+        private const string RepositoryIdSql = "@RepositoryId";
+        private const string Id = "Id";
 
         private readonly ISqlProvider _sqlDataAccess;
     }

@@ -5,12 +5,6 @@ namespace Crate.DataAccess
     public interface ISqlProvider
     {
         /// <summary>
-        /// Checks the connection.
-        /// </summary>
-        /// <returns></returns>
-        bool CheckConnection();
-
-        /// <summary>
         /// Selects the specified quert.
         /// </summary>
         /// <param name="query"></param>
@@ -18,6 +12,17 @@ namespace Crate.DataAccess
         /// <param name="column"></param>
         /// <returns></returns>
         IEnumerable<string> Select(string query, Dictionary<string, string> parameters, string column);
+
+        /// <summary>
+        /// Selects the dictionary.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <param name="keyColumn">The key column.</param>
+        /// <param name="valueColumn">The value column.</param>
+        /// <returns></returns>
+        Dictionary<string, string> SelectDictionary(string query, Dictionary<string, string> parameters, 
+            string keyColumn, string valueColumn);
 
         /// <summary>
         /// Runs the query.

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -16,12 +14,15 @@ namespace Crate.ManagementStudio
         public MainForm()
         {
             InitializeComponent();
-
-
             RefreshConnectionBtn.Enabled = false;
         }
 
         private void connectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CreateConnectionShowDialog();
+        }
+
+        private void CreateConnectionShowDialog()
         {
             using (var connection = new CreateConnection())
             {
@@ -38,22 +39,16 @@ namespace Crate.ManagementStudio
         {
             _dc = CreateDataContext(_currentConnection);
 
-            if (!_dc.CheckConnection())
-            {
-                MessageBox.Show(Resources.MainForm_CreateConnectionFailed);
-                return;
-            }
-
             var repositories = _dc.GetRepositories().ToArray();
-            RepositoriesTbx.Enabled = true;
-            RepositoriesTbx.Items.Clear();
-            RepositoriesTbx.Items.AddRange(repositories);
+            RepositoriesCbx.Enabled = true;
+            RepositoriesCbx.Items.Clear();
+            RepositoriesCbx.Items.AddRange(repositories);
 
-            if (RepositoriesTbx.Items.Count > 0)
+            if (RepositoriesCbx.Items.Count > 0)
             {
-                RepositoriesTbx.SelectedIndex = 0;
+                RepositoriesCbx.SelectedIndex = 0;
 
-                var objects = _dc.GetObjects((string)RepositoriesTbx.SelectedItem).ToArray();
+                var objects = _dc.GetObjects((string)RepositoriesCbx.SelectedItem).ToArray();
                 ObjectsTbx.Enabled = true;
                 ObjectsTbx.Items.Clear();
                 ObjectsTbx.Items.AddRange(objects);
@@ -81,15 +76,15 @@ namespace Crate.ManagementStudio
             switch (currentConnection.SourceType)
             {
                 case SourceType.File:
-                    dc = new FileContext(currentConnection.Options);
+                    dc = new FileContext(currentConnection.ConnectionString, "Test");
                     break;
 
                 case SourceType.SqlServer:
-                    dc = new SqlServerContext(currentConnection.Options);
+                    dc = new SqlServerContext(currentConnection.ConnectionString, "Test");
                     break;
 
                 case SourceType.MySql:
-                    dc = new MySqlContext(currentConnection.Options);
+                    dc = new MySqlContext(currentConnection.ConnectionString, "Test");
                     break;
             }
 
@@ -98,33 +93,90 @@ namespace Crate.ManagementStudio
 
         private void RepositoriesTbx_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var objects = _dc.GetObjects((string)RepositoriesTbx.SelectedItem).ToArray();
-            ObjectsTbx.Items.Clear();
-            ObjectsTbx.Items.AddRange(objects);
 
-            if (ObjectsTbx.Items.Count > 0)
+            var isObjectsTabSelected = TabControl.SelectedIndex == 0;
+
+            if (isObjectsTabSelected)
             {
-                ObjectsTbx.SelectedIndex = 0;
-                ObjectsTbx.Enabled = true;
-                SelectObjectsBtn.Enabled = true;
-            }
-            else
-            {
-                ObjectsTbx.Enabled = false;
-                SelectObjectsBtn.Enabled = false;
+                var objects = _dc.GetObjects((string)RepositoriesCbx.SelectedItem).ToArray();
+                ObjectsTbx.Items.Clear();
+                ObjectsTbx.Items.AddRange(objects);
+
+                if (ObjectsTbx.Items.Count > 0)
+                {
+                    ObjectsTbx.SelectedIndex = 0;
+                    ObjectsTbx.Enabled = true;
+                    SelectObjectsBtn.Enabled = true;
+                }
+                else
+                {
+                    ObjectsTbx.Enabled = false;
+                    SelectObjectsBtn.Enabled = false;
+                }
             }
         }
 
-        private List<Dictionary<string, object>> _objects;
-        private List<string> _titles;
-
         private void SelectObjectsBtn_Click(object sender, EventArgs e)
         {
-            ClearOldData();
+            _currentObject = (string)ObjectsTbx.SelectedItem;
+            _currentRepository = (string)RepositoriesCbx.SelectedItem;
+
+            if (TabControl.SelectedIndex == 0)
+                ExecuteObjects();
+            else
+                ExecutePairs();
+        }
+
+        private void ExecutePairs()
+        {
+            PairsGridView.Columns.Clear();
 
             int take;
             int skip;
-           
+
+            var takeIsParced = int.TryParse(SelectObjectsTbx.Text, out take);
+            var skipIsParced = int.TryParse(SkipObjectsTbx.Text, out skip);
+
+            if (!takeIsParced)
+            {
+                SelectObjectsTbx.Text = "100";
+                take = 100;
+            }
+
+            if (!skipIsParced)
+            {
+                SkipObjectsTbx.Text = "0";
+                skip = 0;
+            }
+
+            var pairs = _dc.Pairs.GetAllFromCrate((string)RepositoriesCbx.SelectedItem).Skip(skip).Take(take).ToList();
+
+            if (pairs.Count == 0)
+                return;
+
+            PairsGridView.Columns.Add("Key", "Key");
+            PairsGridView.Columns.Add("Value", "Value");
+
+            var index = 0;
+            //Add rows
+            foreach (var array in pairs.Select(row => new List<object> { row.Key, row.Value }))
+            {
+                PairsGridView.Rows.Add(array.ToArray());
+
+                var testRow = PairsGridView.Rows[index];
+                testRow.Cells[0].ReadOnly = true;
+
+                index++;
+            }
+        }
+
+        private void ExecuteObjects()
+        {
+            ClearOldObjectsData();
+
+            int take;
+            int skip;
+
             var takeIsParced = int.TryParse(SelectObjectsTbx.Text, out take);
             var skipIsParced = int.TryParse(SkipObjectsTbx.Text, out skip);
 
@@ -142,10 +194,8 @@ namespace Crate.ManagementStudio
 
             _objects = GetObjects().Skip(skip).Take(take).ToList();
 
-            if (_objects.Count == 0)
-                return;
-
-            _titles = _objects[0].Select(c => c.Key).ToList();
+            var currentObject = _dc.GetObjectStructure(_currentObject, (string)RepositoriesCbx.SelectedItem);
+            _titles = currentObject.Select(c => c.Key).ToList();
 
             //Add titles
             foreach (var title in _titles)
@@ -160,12 +210,12 @@ namespace Crate.ManagementStudio
 
         private IEnumerable<Dictionary<string, object>> GetObjects()
         {
-            var repository = (string)RepositoriesTbx.SelectedItem;
-            var objectType = (string)ObjectsTbx.SelectedItem;
+            var repository = (string)RepositoriesCbx.SelectedItem;
+            var objectType = _currentObject;
             return _dc.Select(repository, objectType);
         }
 
-        private void ClearOldData()
+        private void ClearOldObjectsData()
         {
             ObjectsGridView.Columns.Clear();
             ObjectsGridView.Rows.Clear();
@@ -176,27 +226,8 @@ namespace Crate.ManagementStudio
             if (_currentConnection == new Connection())
                 return;
 
-            CreateConnection();
-        }
-
-        private IDataContext _dc;
-        private Connection _currentConnection = new Connection();
-
-        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            var dialogResult = MessageBox.Show(Resources.MainForm_DeleteItemQuestion, Resources.MainForm_DeleteItem, MessageBoxButtons.YesNo);
-            if (dialogResult == DialogResult.Yes)
-            {
-               
-            }
-        }
-
-        private void ObjectsListView_MouseClick(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Right)
-            {
-                RightBtnContextMenu.Show(Cursor.Position);
-            }
+            SelectObjectsTbx.Text = "100";
+            SkipObjectsTbx.Text = "0";
         }
 
         private void SelectObjectsTbx_KeyPress(object sender, KeyPressEventArgs e)
@@ -224,30 +255,246 @@ namespace Crate.ManagementStudio
             if (ObjectsGridView.Tag != ObjectsGridView.CurrentCell.Value)
             {
                 var editableItems = new Dictionary<string, string>();
-
                 var row = ObjectsGridView.Rows[e.RowIndex];
+
+                var newObject = new Dictionary<string, string>();
+                var update = true;
 
                 foreach (var title in _titles)
                 {
-                    var value = row.Cells[title].Value.ToString();
-                    editableItems.Add(title, value);
+                    var cellValue = row.Cells[title].Value;
+
+                    //Create a new object
+                    if (row.Cells["Id"].Value == null)
+                    {
+                        update = false;
+
+                        if (title == "Id")
+                            newObject[title] = Guid.NewGuid().ToString();
+                        else
+                        {
+                            newObject[title] = cellValue == null ? string.Empty : cellValue.ToString();
+                        }
+
+                        if (cellValue != null)
+                        {
+                            var value = cellValue.ToString();
+                            editableItems.Add(title, value);
+                        }
+                    }
+                    //Update the old one
+                    else
+                    {
+                        var value = cellValue.ToString();
+                        editableItems.Add(title, value);
+                    }
                 }
 
-                var rep = new Repository(RepositoriesTbx.SelectedItem.ToString());
-                rep.UpdateFromDictionary(editableItems);
-                _dc.SubmitChanges(rep);
+                var rep = new Repository(_currentRepository);
+
+                if (update)
+                {
+                    if (_dc.CheckDataTypes(editableItems, _currentObject, _currentRepository))
+                    {
+                        ObjectsGridView.CurrentCell.ErrorText = "";
+                        rep.UpdateFromDictionary(editableItems, _currentObject);
+                        _dc.SubmitChanges(rep);
+                    }
+                    else
+                    {
+                        ObjectsGridView.CurrentCell.ErrorText = "Wrong data type! Changes cannot be saved!";
+                    }
+                }
+                else
+                {
+                    if (_dc.CheckDataTypes(editableItems, _currentObject, _currentRepository))
+                    {
+                        var validation = newObject.Any(c => c.Value == string.Empty);
+                        if (!validation)
+                        {
+                            rep.AddFromDictionary(newObject, _currentObject);
+                            _dc.SubmitChanges(rep);
+                        }
+                    }
+                    else
+                    {
+                        ObjectsGridView.CurrentCell.ErrorText = "Wrong data type! Changes cannot be saved!";
+                    }
+                }
             }
         }
 
         private void ObjectsGridView_UserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
         {
-            var row = ObjectsGridView.Rows[e.Row.Index];
-            var id = row.Cells["Id"].Value.ToString();
+            DeleteObjectRow(e.Row.Index);
+        }
 
-            var rep = new Repository(RepositoriesTbx.SelectedItem.ToString());
+        private void DeleteObjectRow(int rowIndex)
+        {
+            var row = ObjectsGridView.Rows[rowIndex];
+
+            var idRow = row.Cells["Id"].Value;
+
+            if (idRow == null)
+                return;
+
+            var id = idRow.ToString();
+
+            var rep = new Repository(_currentRepository);
             rep.Remove(Guid.Parse(id));
             _dc.SubmitChanges(rep);
         }
+
+        private void ObjectsGridView_CellMouseUp(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                if (e.RowIndex == -1)
+                    return;
+
+                ObjectsGridView.Rows[e.RowIndex].Selected = true;
+                _rowIndex = e.RowIndex;
+                ObjectsGridView.CurrentCell = ObjectsGridView.Rows[e.RowIndex].Cells[1];
+
+                if (ObjectsGridView.Rows.Count - 1 != _rowIndex)
+                    RightBtnContextMenu.Show(Cursor.Position);
+            }
+        }
+
+        private void TabControl_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (_dc.Pairs == null || _dc == null)
+                return;
+
+            var isObjectsTabSelected = TabControl.SelectedIndex == 0;
+            ObjectsTbx.Enabled = isObjectsTabSelected;
+            ObjectsLbl.Enabled = isObjectsTabSelected;
+
+            RepositoryLbl.Text = isObjectsTabSelected ? "Repository:" : "Crate:";
+
+            if (!isObjectsTabSelected)
+            {
+                var crates = _dc.Pairs.GetCrates();
+                RepositoriesCbx.Items.Clear();
+
+                foreach (var crate in crates)
+                    RepositoriesCbx.Items.Add(crate);
+            }
+            else
+            {
+                var repositories = _dc.GetRepositories().ToArray();
+                RepositoriesCbx.Items.Clear();
+                RepositoriesCbx.Items.AddRange(repositories);
+            }
+
+            if (RepositoriesCbx.Items.Count > 0)
+                RepositoriesCbx.SelectedIndex = 0;
+        }
+
+        private void MainForm_Shown(object sender, EventArgs e)
+        {
+            CreateConnectionShowDialog();
+        }
+
+        private void PairsGridView_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
+        {
+            PairsGridView.Tag = PairsGridView.CurrentCell.Value;
+        }
+
+        private void PairsGridView_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+
+            if (PairsGridView.Tag != PairsGridView.CurrentCell.Value)
+            {
+                var row = PairsGridView.Rows[e.RowIndex];
+
+                if (row.Cells["Key"].Value != null && row.Cells["Value"].Value != null)
+                {
+                    var key = row.Cells["Key"].Value.ToString();
+                    var value = row.Cells["Value"].Value.ToString();
+
+                    if (PairsGridView.Tag != null && _dc.Pairs.IfExists(key))
+                        _dc.Pairs.Update(key, value);
+                    else
+                    {
+                        if (!_dc.Pairs.IfExists(key))
+                        {
+                            _dc.Pairs.Add(key, value);
+                            row.Cells["Key"].ReadOnly = true;
+
+                            row.Cells["Key"].Style.BackColor = Color.White;
+                            row.Cells["Key"].Style.ForeColor = Color.Black;
+                        }
+                        else
+                        {
+                            row.Cells["Key"].Style.BackColor = Color.OrangeRed;
+                            row.Cells["Key"].Style.ForeColor = Color.White;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void PairsGridView_UserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
+        {
+            RemovePair(e.Row.Index);
+        }
+
+        private void RemovePair(int key)
+        {
+            var row = PairsGridView.Rows[key];
+            var keyValue = row.Cells["Key"].Value.ToString();
+            _dc.Pairs.Remove(keyValue);
+        }
+
+        private void PairsGridView_CellMouseUp(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                if (e.RowIndex == -1)
+                    return;
+
+                PairsGridView.Rows[e.RowIndex].Selected = true;
+                _rowIndex = e.RowIndex;
+                PairsGridView.CurrentCell = PairsGridView.Rows[e.RowIndex].Cells[1];
+
+                if (PairsGridView.Rows.Count - 1 != _rowIndex)
+                    RightBtnContextMenu.Show(Cursor.Position);
+            }
+        }
+
+        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var isObjectsTabSelected = TabControl.SelectedIndex == 0;
+
+            var dialogResult = MessageBox.Show(Resources.MainForm_DeleteItemQuestion, Resources.MainForm_DeleteItem,
+                    MessageBoxButtons.YesNo);
+
+            if (dialogResult == DialogResult.Yes)
+            {
+                if (isObjectsTabSelected)
+                {
+                    DeleteObjectRow(_rowIndex);
+                    ObjectsGridView.Rows.RemoveAt(_rowIndex);
+                }
+                else
+                {
+                    var row = PairsGridView.Rows[_rowIndex];
+                    var keyRow = row.Cells["Key"].Value.ToString();
+
+                    _dc.Pairs.Remove(keyRow);
+                    PairsGridView.Rows.RemoveAt(_rowIndex);
+                }
+            }
+        }
+
+        private IDataContext _dc;
+        private Connection _currentConnection = new Connection();
+        private List<Dictionary<string, object>> _objects;
+        private List<string> _titles;
+        private int _rowIndex;
+        private string _currentObject;
+        private string _currentRepository;
     }
 }
 

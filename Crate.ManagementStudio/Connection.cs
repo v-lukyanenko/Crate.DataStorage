@@ -5,6 +5,6 @@ namespace Crate.ManagementStudio
     {
         public SourceType SourceType { get; set; }
 
-        public string Options { get; set; }
+        public string ConnectionString { get; set; }
     }
 }

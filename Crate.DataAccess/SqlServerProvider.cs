@@ -25,11 +25,11 @@ namespace Crate.DataAccess
         /// Determines whether [is server connected].
         /// </summary>
         /// <returns></returns>
-        public bool CheckConnection()
+        public static bool CheckConnection(string connectionString)
         {
             try
             {
-                using (var connection = new SqlConnection(_connectionString))
+                using (var connection = new SqlConnection(connectionString))
                 {
                     const string query = "select 1";
                     var command = new SqlCommand(query, connection);
@@ -67,6 +67,42 @@ namespace Crate.DataAccess
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Selects the dictionary.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <param name="keyColumn">The key column.</param>
+        /// <param name="valueColumn">The value column.</param>
+        /// <returns></returns>
+        public Dictionary<string, string> SelectDictionary(string query, Dictionary<string, string> parameters,
+            string keyColumn, string valueColumn)
+        {
+            var result = new Dictionary<string, string>();
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                using (var cmd = new SqlCommand(query, connection))
+                {
+                    AddParameters(cmd, parameters);
+                    connection.Open();
+
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var key = reader[keyColumn].ToString();
+                            var value = reader[valueColumn].ToString();
+
+                            result.Add(key, value);
+                        }
+                    }
+                }
+            }
+
+            return result;
         }
 
         /// <summary>

@@ -35,6 +35,7 @@ namespace Crate.Core.Repositories
         }
 
         #region Public Methods
+
         /// <summary>
         /// Adds the specified t.
         /// </summary>
@@ -44,10 +45,15 @@ namespace Crate.Core.Repositories
         {
             IsEnumerable<T>();
 
-            var current = (dynamic) t;
+            var current = (dynamic)t;
             current.Id = Guid.NewGuid();
 
             AddInstance(t, OperationType.Saving);
+        }
+
+        public void AddFromDictionary(IReadOnlyDictionary<string, string> data, string name)
+        {
+            AddInstance(data, name, OperationType.Saving);
         }
 
         /// <summary>
@@ -58,12 +64,18 @@ namespace Crate.Core.Repositories
         public void Update<T>(T t)
         {
             IsEnumerable<T>();
+
+            var current = (dynamic)t;
+
+            if(current.Id == new Guid())
+                throw new Exception("You can't update the entry with an empty Id!");
+
             AddInstance(t, OperationType.Updating);
         }
 
-        public void UpdateFromDictionary(IReadOnlyDictionary<string, string> data)
+        public void UpdateFromDictionary(IReadOnlyDictionary<string, string> data, string name)
         {
-            AddInstance(data, OperationType.Updating);
+            AddInstance(data, name, OperationType.Updating);
         }
 
         /// <summary>
@@ -98,7 +110,7 @@ namespace Crate.Core.Repositories
         #region Private Region
         private static void IsEnumerable<T>()
         {
-            if(typeof(T).Name.Contains(typeof(IEnumerable).Name))
+            if (typeof(T).Name.Contains(typeof(IEnumerable).Name))
                 throw new Exception(Resource.IEnumerableError);
         }
 
@@ -115,17 +127,18 @@ namespace Crate.Core.Repositories
             Data.Add(instance);
         }
 
-        private void AddInstance(IReadOnlyDictionary<string, string> data, OperationType operationType)
+        private void AddInstance(IReadOnlyDictionary<string, string> data, string name, OperationType operationType)
         {
-            var instance = Create(data, operationType);
+            var instance = Create(data, name, operationType);
             Data.Add(instance);
         }
 
-        private static Instance Create(IReadOnlyDictionary<string, string> data, OperationType operationType)
+        private static Instance Create(IReadOnlyDictionary<string, string> data, string name, OperationType operationType)
         {
             return new Instance
             {
                 Id = Guid.Parse(data["Id"]),
+                Name = name,
                 Object = JsonConvert.SerializeObject(data),
                 Type = operationType
             };
@@ -142,16 +155,18 @@ namespace Crate.Core.Repositories
             };
         }
 
-        private static Instance Create(string type, dynamic obj, OperationType operationType)
+        private Instance Create(string type, dynamic obj, OperationType operationType)
         {
             return new Instance
             {
                 Id = obj.Id,
                 Name = type,
                 Object = JsonConvert.SerializeObject(obj),
-                Type = operationType
+                Type = operationType,
+                Repository = Name
             };
         }
+       
         #endregion
     }
 }

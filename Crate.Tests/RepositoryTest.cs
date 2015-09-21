@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Crate.Core;
 using Crate.Core.Repositories;
 using Crate.Tests.Models;
@@ -33,17 +34,16 @@ namespace Crate.Tests
         {
             var p = new Person
             {
+                Id = Guid.NewGuid(),
                 Name = "John Doe",
                 Age = 24,
                 Email = "john.doe@email.com",
             };
 
-            var crate = new Repository("Crate");
+            var crate = new Repository("ConsoleApp");
 
             crate.Update(p);
-
             var actual = crate.Data.First(c => c.Name == "Person").Type;
-
             const OperationType expected = OperationType.Updating;
 
             Assert.AreEqual(expected, actual);

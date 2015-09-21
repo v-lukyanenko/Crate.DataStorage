@@ -375,6 +375,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "CreateConnection";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "New Connection";
             this.SqlServerConnectionPnl.ResumeLayout(false);
             this.SqlServerConnectionPnl.PerformLayout();
