@@ -44,34 +44,34 @@ Save Objects
     `private const string ConnectionString = @"datasource=localhost;Database=crate;port=3306;username=root;password=root;";` <br/>
     `private static readonly IDataContext Dc = new MySqlContext(ConnectionString)`
 
-2. Add Repository
+2. Add Repository <br/>
 `Dc.CreateRepository("ConsoleApp");`
 
-3. Add objects to the repository
+3. Add objects to the repository <br/>
 `Dc.CreateInstance<Car>(false, "ConsoleApp");`
 `Dc.CreateInstance<Person>(false, "ConsoleApp");`
 
-3. Create repository object
+4. Create repository object <br/>
 `var repository = new Repository("ConsoleApp");`
 
-3. Save data <br/>
+5. Save data <br/>
 `var car = new Car { Name = "Honda", Model = "Accord" };` <br/>
 `repository.Add(car);` <br/>
 `Dc.SubmitChanges(repository);`
 
-4. Get all objects from the Storage of the certain type <br/>
+6. Get all objects from the Storage of the certain type <br/>
 `var data = Dc.Select<Person>(repository)`
 
-5. Get specific data <br/>
+7. Get specific data <br/>
 `var car = Dc.Select<Person>(crate).First(c => c.Model == "Accord");`
 
-6. Update entry <br/>
+8. Update entry <br/>
 `var car = Dc.Select<Person>(repository).First(c => c.Model == "Accord");`<br/>
 `car.Model = "Lexus;`<br/>
 `repository.Update(car);`<br/>
 `Dc.SubmitChanges(repository);`<br/>
 
-7. Remove entry <br/>
+9. Remove entry <br/>
 `var car = Dc.Select<Person>(repository).First(c => c.Model == "Accord");`<br/>
 `repository.Remove(car);`<br/>
 `Dc.SubmitChanges(repository)`<br/>
